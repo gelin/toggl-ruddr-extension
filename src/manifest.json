@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Toggl + Kimai",
+  "description": "Hepler to insert tracked hours from Toggl to Kimai",
+  "version": "0.1",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "tk-icon.png"
+  }
+}
