@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Toggl + Kimai",
+  "description": "Hepler to insert tracked hours from Toggl to Kimai",
+  "version": "0.1",
+  "icons": {
+    "16": "img/icon-16.png",
+    "32": "img/icon-32.png",
+    "48": "img/icon-48.png",
+    "128": "img/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "img/icon-16.png"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "js/kimai.js"
+      ],
+      "matches": [
+        "https://timesheets.netvalue.nz/en_NZ/timesheet/"
+      ]
+    }
+  ]
+}
