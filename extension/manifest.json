@@ -22,5 +22,8 @@
         "https://timesheets.netvalue.nz/en_NZ/timesheet/"
       ]
     }
+  ],
+  "host_permissions": [
+    "https://api.track.toggl.com/"
   ]
 }

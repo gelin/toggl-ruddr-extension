@@ -1,26 +1,35 @@
+// disable form submit
+document.getElementById('toggl_settings').addEventListener('submit', (event) => {
+    event.preventDefault();
+    return false;
+});
+
 document.getElementById('toggl_settings_test_button').addEventListener('click', onTestButtonClick);
 
 function onTestButtonClick() {
     const token = document.getElementById('toggl_token')?.value;
     testTogglToken(token);
+    return false;
 }
 
 function testTogglToken(token) {
-    console.log(`TOGGL Testing ${token}`);
-    fetch("https://api.track.toggl.com/api/v9/me/logged", {
-        method: "GET",
+    const messageElement = document.getElementById('toggl_message');
+    messageElement.textContent = 'Testing...';
+    fetch('https://api.track.toggl.com/api/v9/me/logged', {
+        method: 'GET',
         headers: {
-            "Content-Type": "application/json",
-            // "Authorization": `Basic ${btoa(token + ':api_token')}`
-        },
+            'Authorization': `Basic ${btoa(token + ':api_token')}`
+        }
     })
-        .then((resp) => resp.json())
-        .then((json) => {
-            document.getElementById('toggl_message').text = 'SUCCESS';
-            console.log(json);
+        .then((resp) => {
+            if (resp.ok) {
+                messageElement.textContent = 'SUCCESS';
+            } else {
+                messageElement.textContent = 'FAILED: not OK response'
+            }
         })
         .catch(err => {
-            document.getElementById('toggl_message').text = 'FAILED: ' + err.message;
-            console.error(err);
+            messageElement.textContent = 'FAILED: ' + err.message;
+            console.log('Failed to fetch', err);
         });
 }
