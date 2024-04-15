@@ -4,6 +4,8 @@ document.getElementById('toggl_settings').addEventListener('submit', (event) => 
     return false;
 });
 
+document.getElementById('toggl_token').value = localStorage.getItem('toggl_api_token');
+
 document.getElementById('toggl_settings_test_button').addEventListener('click', onTestButtonClick);
 
 function onTestButtonClick() {
@@ -32,4 +34,12 @@ function testTogglToken(token) {
             messageElement.textContent = 'FAILED: ' + err.message;
             console.log('Failed to fetch', err);
         });
+}
+
+document.getElementById('toggl_settings_save_button').addEventListener('click', onSaveButtonClick);
+
+function onSaveButtonClick() {
+    const token = document.getElementById('toggl_token').value;
+    localStorage.setItem('toggl_api_token', token);
+    return false;
 }
