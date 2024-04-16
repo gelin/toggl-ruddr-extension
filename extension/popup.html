@@ -2,12 +2,14 @@
 <body>
 <h1>Toggl + Kimai Settings</h1>
 <form id="toggl_settings">
-    <label for="toggl_token">Toggl Track API token</label>
-    <input id="toggl_token" type="text">
-    <p id="toggl_message"></p>
-    <button id="toggl_settings_test_button">Test</button>
-    <button id="toggl_settings_save_button">Save</button>
+    <label for="toggl_token">Toggl Track API token</label><br>
+    <input id="toggl_token" type="text"><br>
+    <label for="toggl_workspace">Toggl Workspace</label><br>
+    <select id="toggl_workspace"></select><br>
+    <p id="toggl_message"></p><br>
+    <button id="toggl_settings_save_button">Refresh & Save</button>
 </form>
+<script src="js/toggl.js"></script>
 <script src="js/popup.js"></script>
 </body>
 </html>

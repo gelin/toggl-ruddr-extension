@@ -1,3 +1,29 @@
 ### me logged
 GET https://api.track.toggl.com/api/v9/me/logged
 Authorization: Basic {{api_token}} api_token
+
+### preferences
+GET https://api.track.toggl.com/api/v9/me/preferences
+Authorization: Basic {{api_token}} api_token
+
+### workspaces
+GET https://api.track.toggl.com/api/v9/me/workspaces
+Authorization: Basic {{api_token}} api_token
+
+### time entries
+GET https://api.track.toggl.com/api/v9/me/time_entries?meta=true&start_date=2024-04-14T00:00:00%2B12:00&end_date=2024-04-14T23:59:59%2B12:00
+Authorization: Basic {{api_token}} api_token
+
+### summary report
+POST https://api.track.toggl.com/reports/api/v3/workspace/7174800/summary/time_entries
+Authorization: Basic {{api_token}} api_token
+Content-Type: application/json
+
+{
+  "start_date": "2024-04-15",
+  "end_date": "2024-04-15",
+  "grouping": "projects",
+  "sub_grouping": "time_entries"
+}
+
+

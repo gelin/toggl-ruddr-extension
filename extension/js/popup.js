@@ -1,45 +1,45 @@
 // disable form submit
-document.getElementById('toggl_settings').addEventListener('submit', (event) => {
+const togglSettingsForm = document.getElementById('toggl_settings');
+togglSettingsForm.addEventListener('submit', (event) => {
     event.preventDefault();
     return false;
 });
 
-document.getElementById('toggl_token').value = localStorage.getItem('toggl_api_token');
+const togglTokenInput = document.getElementById('toggl_token');
+togglTokenInput.value = togglGetApiToken();
+togglTokenInput.addEventListener('change', onTogglTokenChanged);
 
-document.getElementById('toggl_settings_test_button').addEventListener('click', onTestButtonClick);
+const togglWorkspaceSelect = document.getElementById('toggl_workspace');
 
-function onTestButtonClick() {
-    const token = document.getElementById('toggl_token')?.value;
-    testTogglToken(token);
+const messageText = document.getElementById('toggl_message');
+
+function onTogglTokenChanged() {
+    const token = togglTokenInput.value;
+    messageText.textContent = 'Testing...';
+    togglTestToken(token)
+        .then(message => messageText.textContent = message)
+        .then(() => togglListWorkspaces(token))
+        .then(workspaces => fillWorkspaceSelect(workspaces))
+        .catch(err => messageText.textContent = err.message);
     return false;
 }
 
-function testTogglToken(token) {
-    const messageElement = document.getElementById('toggl_message');
-    messageElement.textContent = 'Testing...';
-    fetch('https://api.track.toggl.com/api/v9/me/logged', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Basic ${btoa(token + ':api_token')}`
-        }
-    })
-        .then((resp) => {
-            if (resp.ok) {
-                messageElement.textContent = 'SUCCESS';
-            } else {
-                messageElement.textContent = 'FAILED: not OK response'
-            }
-        })
-        .catch(err => {
-            messageElement.textContent = 'FAILED: ' + err.message;
-            console.log('Failed to fetch', err);
-        });
+function fillWorkspaceSelect(workspaces) {
+    workspaces.forEach(w => {
+        const option = document.createElement('option')
+        option.value = w.id;
+        option.innerText = w.name;
+        togglWorkspaceSelect.appendChild(option);
+    });
 }
 
-document.getElementById('toggl_settings_save_button').addEventListener('click', onSaveButtonClick);
+const togglSaveButton = document.getElementById('toggl_settings_save_button');
+togglSaveButton.addEventListener('click', onSaveButtonClick);
 
 function onSaveButtonClick() {
-    const token = document.getElementById('toggl_token').value;
-    localStorage.setItem('toggl_api_token', token);
+    const token = togglTokenInput.value;
+    togglSaveSettings({
+        'token': token
+    })
     return false;
 }
