@@ -17,21 +17,30 @@ function onTogglTokenChanged() {
     const token = togglTokenInput.value;
     messageText.textContent = 'Testing...';
     togglTestToken(token)
-        .then(message => messageText.textContent = message)
-        .then(() => togglListWorkspaces(token))
-        .then(workspaces => fillWorkspaceSelect(workspaces))
-        .catch(err => messageText.textContent = err.message);
+        .then(message => {
+            messageText.textContent = message;
+            return togglRefreshWorkspaces(token);
+        })
+        .then(workspaces => {
+            fillWorkspaceSelect(workspaces);
+        })
+        .catch(err => {
+            messageText.textContent = err.message
+        });
     return false;
 }
 
 function fillWorkspaceSelect(workspaces) {
+    togglWorkspaceSelect.length = 0;
     workspaces.forEach(w => {
         const option = document.createElement('option')
         option.value = w.id;
         option.innerText = w.name;
+        option.selected = w.selected;
         togglWorkspaceSelect.appendChild(option);
     });
 }
+fillWorkspaceSelect(togglGetWorkspaces());
 
 const togglSaveButton = document.getElementById('toggl_settings_save_button');
 togglSaveButton.addEventListener('click', onSaveButtonClick);
