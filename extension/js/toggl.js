@@ -26,7 +26,7 @@ function togglTestToken(token) {
             }
         })
         .catch(err => {
-            console.log('Failed to fetch /me/logged', err);
+            console.log('Failed to fetch me/logged', err);
             throw new Error('FAILED: ' + err.message);
         });
 }
@@ -64,7 +64,35 @@ function togglRefreshWorkspaces(token) {
             return workspaces;
         })
         .catch(err => {
-            console.log('Failed to fetch /me/workspaces', err);
+            console.log('Failed to fetch me/workspaces', err);
             throw err;
         });
+}
+
+function togglFetchReport(date) {
+    const apiToken = togglGetApiToken();
+    const workspaceId = togglGetWorkspaceId();
+    return fetch(`https://api.track.toggl.com/reports/api/v3/workspace/${workspaceId}/summary/time_entries`, {
+        method: "POST",
+        headers: {
+            'Authorization': `Basic ${btoa(apiToken + ':api_token')}`,
+            'Content-Type': 'application/json'
+        },
+        body: {
+            'start_date': date,
+            'end_date': date,
+            'grouping': 'projects',
+            'sub_grouping': 'time_entries'
+        }
+    })
+        .then((resp) => resp.json())
+        .then((json) => togglConvertReport(json))
+        .catch(err => {
+            console.log('Failed to fetch summary/time_entries', err);
+            throw err;
+        });
+}
+
+function togglConvertReport(json) {
+    return json;
 }
