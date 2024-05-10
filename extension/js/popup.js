@@ -1,3 +1,11 @@
+import {
+    togglGetApiToken,
+    togglTestToken,
+    togglRefreshWorkspaces,
+    togglGetWorkspaces,
+    togglSaveSettings
+} from '/js/toggl.js';
+
 // disable form submit
 const togglSettingsForm = document.getElementById('toggl_settings');
 togglSettingsForm.addEventListener('submit', (event) => {

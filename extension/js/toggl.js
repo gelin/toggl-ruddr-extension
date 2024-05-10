@@ -1,17 +1,17 @@
-function togglGetApiToken() {
+export function togglGetApiToken() {
     return localStorage.getItem('toggl_api_token');
 }
 
-function togglGetWorkspaceId() {
+export function togglGetWorkspaceId() {
     return localStorage.getItem('toggl_workspace_id');
 }
 
-function togglSaveSettings(settings) {
+export function togglSaveSettings(settings) {
     localStorage.setItem('toggl_api_token', settings.token);
     localStorage.setItem('toggl_workspace_id', settings.workspace);
 }
 
-function togglTestToken(token) {
+export function togglTestToken(token) {
     return fetch('https://api.track.toggl.com/api/v9/me/logged', {
         method: 'GET',
         headers: {
@@ -31,7 +31,7 @@ function togglTestToken(token) {
         });
 }
 
-function togglGetWorkspaces() {
+export function togglGetWorkspaces() {
     const workspaceId = togglGetWorkspaceId();
     const workspaces = JSON.parse(localStorage.getItem('toggl_workspaces') || '[]');
     return workspaces.map(workspace => {
@@ -44,7 +44,7 @@ function togglSetWorkspaces(workspaces) {
     localStorage.setItem('toggl_workspaces', JSON.stringify(workspaces));
 }
 
-function togglRefreshWorkspaces(token) {
+export function togglRefreshWorkspaces(token) {
     const apiToken = token ?? togglGetApiToken();
     return fetch("https://api.track.toggl.com/api/v9/me/workspaces", {
         method: "GET",
@@ -69,11 +69,19 @@ function togglRefreshWorkspaces(token) {
         });
 }
 
-function togglFetchReport(date) {
+export function togglFetchReport(date) {
+    return chrome.runtime.sendMessage({
+        method: 'togglFetchReport',
+        date: date
+    })
+}
+
+export function togglFetchReportImpl(date) {
+    console.log(`Fetching report for ${date}`);
     const apiToken = togglGetApiToken();
     const workspaceId = togglGetWorkspaceId();
     return fetch(`https://api.track.toggl.com/reports/api/v3/workspace/${workspaceId}/summary/time_entries`, {
-        method: "POST",
+        method: 'POST',
         headers: {
             'Authorization': `Basic ${btoa(apiToken + ':api_token')}`,
             'Content-Type': 'application/json'
@@ -94,5 +102,6 @@ function togglFetchReport(date) {
 }
 
 function togglConvertReport(json) {
+    // TODO
     return json;
 }

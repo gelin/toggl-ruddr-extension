@@ -9,14 +9,23 @@
     "48": "img/icon-48.png",
     "128": "img/icon-128.png"
   },
+  "permissions": [
+    "nativeMessaging"
+  ],
+  "host_permissions": [
+    "https://api.track.toggl.com/"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": "img/icon-16.png"
   },
+  "background": {
+    "service_worker": "js/background.js",
+    "type": "module"
+  },
   "content_scripts": [
     {
       "js": [
-        "js/toggl.js",
         "js/kimai.js"
       ],
       "matches": [
@@ -24,7 +33,14 @@
       ]
     }
   ],
-  "host_permissions": [
-    "https://api.track.toggl.com/"
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "js/toggl.js"
+      ],
+      "matches": [
+        "https://timesheets.netvalue.nz/*"
+      ]
+    }
   ]
 }

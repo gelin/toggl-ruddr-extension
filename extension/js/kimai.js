@@ -1,3 +1,11 @@
+let togglFetchReport;
+
+(async () => {
+    const togglSrc = chrome.runtime.getURL('js/toggl.js');
+    const toggl = await import(togglSrc);
+    togglFetchReport = toggl.togglFetchReport;
+})();
+
 window.addEventListener('load', main);
 
 function main() {
