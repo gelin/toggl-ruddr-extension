@@ -1,14 +1,16 @@
 export function togglGetApiToken() {
-    return localStorage.getItem('toggl_api_token');
+    return chrome.storage.sync.get('toggl_api_token').then(o => o?.toggl_api_token).catch(_ => null);
 }
 
 export function togglGetWorkspaceId() {
-    return localStorage.getItem('toggl_workspace_id');
+    return chrome.storage.sync.get('toggl_workspace_id').then(o => o?.toggl_workspace_id).catch(_ => null);
 }
 
 export function togglSaveSettings(settings) {
-    localStorage.setItem('toggl_api_token', settings.token);
-    localStorage.setItem('toggl_workspace_id', settings.workspace);
+    return chrome.storage.sync.set({
+        'toggl_api_token': settings.token,
+        'toggl_workspace_id': settings.workspace
+    });
 }
 
 export function togglTestToken(token) {
@@ -31,9 +33,10 @@ export function togglTestToken(token) {
         });
 }
 
-export function togglGetWorkspaces() {
-    const workspaceId = togglGetWorkspaceId();
-    const workspaces = JSON.parse(localStorage.getItem('toggl_workspaces') || '[]');
+export async function togglGetWorkspaces() {
+    const workspaceId = await togglGetWorkspaceId();
+    const workspaces = await chrome.storage.local.get('toggl_workspaces')
+        .then(o => o?.toggl_workspaces || []).catch(_ => []);
     return workspaces.map(workspace => {
         workspace.selected = workspace.id === workspaceId;
         return workspace;
@@ -41,11 +44,13 @@ export function togglGetWorkspaces() {
 }
 
 function togglSetWorkspaces(workspaces) {
-    localStorage.setItem('toggl_workspaces', JSON.stringify(workspaces));
+    chrome.storage.local.set({
+        'toggl_workspaces': workspaces
+    })
 }
 
-export function togglRefreshWorkspaces(token) {
-    const apiToken = token ?? togglGetApiToken();
+export async function togglRefreshWorkspaces(token) {
+    const apiToken = token ?? await togglGetApiToken();
     return fetch("https://api.track.toggl.com/api/v9/me/workspaces", {
         method: "GET",
         headers: {
@@ -76,22 +81,22 @@ export function togglFetchReport(date) {
     })
 }
 
-export function togglFetchReportImpl(date) {
-    console.log(`Fetching report for ${date}`);
-    const apiToken = togglGetApiToken();
-    const workspaceId = togglGetWorkspaceId();
+export async function togglFetchReportImpl(date) {
+    const apiToken = await togglGetApiToken();
+    const workspaceId = await togglGetWorkspaceId();
+    console.log(`Fetching report for date=${date} in workspace=${workspaceId}`);
     return fetch(`https://api.track.toggl.com/reports/api/v3/workspace/${workspaceId}/summary/time_entries`, {
         method: 'POST',
         headers: {
             'Authorization': `Basic ${btoa(apiToken + ':api_token')}`,
             'Content-Type': 'application/json'
         },
-        body: {
+        body: JSON.stringify({
             'start_date': date,
             'end_date': date,
             'grouping': 'projects',
             'sub_grouping': 'time_entries'
-        }
+        })
     })
         .then((resp) => resp.json())
         .then((json) => togglConvertReport(json))

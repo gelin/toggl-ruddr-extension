@@ -14,7 +14,7 @@ togglSettingsForm.addEventListener('submit', (event) => {
 });
 
 const togglTokenInput = document.getElementById('toggl_token');
-togglTokenInput.value = togglGetApiToken();
+togglTokenInput.value = await togglGetApiToken();
 togglTokenInput.addEventListener('change', onTogglTokenChanged);
 
 const togglWorkspaceSelect = document.getElementById('toggl_workspace');
@@ -48,15 +48,17 @@ function fillWorkspaceSelect(workspaces) {
         togglWorkspaceSelect.appendChild(option);
     });
 }
-fillWorkspaceSelect(togglGetWorkspaces());
+fillWorkspaceSelect(await togglGetWorkspaces());
 
 const togglSaveButton = document.getElementById('toggl_settings_save_button');
 togglSaveButton.addEventListener('click', onSaveButtonClick);
 
 function onSaveButtonClick() {
     const token = togglTokenInput.value;
+    const workspace = togglWorkspaceSelect.value;
     togglSaveSettings({
-        'token': token
+        'token': token,
+        'workspace': workspace
     })
     return false;
 }

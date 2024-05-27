@@ -10,7 +10,8 @@
     "128": "img/icon-128.png"
   },
   "permissions": [
-    "nativeMessaging"
+    "nativeMessaging",
+    "storage"
   ],
   "host_permissions": [
     "https://api.track.toggl.com/"
