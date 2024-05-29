@@ -47,5 +47,5 @@ function togglUpdateForm() {
 function onTogglButtonClick() {
     // TODO
     togglFetchReport('2024-04-18')
-        .then(report => console.log(report));
+        .then(report => console.log('KIMAI', report));
 }

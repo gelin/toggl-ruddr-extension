@@ -75,9 +75,18 @@ export async function togglRefreshWorkspaces(token) {
 }
 
 export function togglFetchReport(date) {
-    return chrome.runtime.sendMessage({
+    const message = {
         method: 'togglFetchReport',
         date: date
+    };
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(message, (response) => {
+            if (response.success) {
+                resolve(response.report);
+            } else {
+                reject(response.error);
+            }
+        });
     })
 }
 
@@ -101,7 +110,7 @@ export async function togglFetchReportImpl(date) {
         .then((resp) => resp.json())
         .then((json) => togglConvertReport(json))
         .catch(err => {
-            console.log('Failed to fetch summary/time_entries', err);
+            console.warn('Failed to fetch summary/time_entries', err);
             throw err;
         });
 }

@@ -2,9 +2,22 @@ import { togglFetchReportImpl } from "/js/toggl.js";
 
 '/js/toggl.js';
 
-chrome.runtime.onMessage.addListener((message, sender, senderResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.method === 'togglFetchReport') {
-        return togglFetchReportImpl(message.date);
+        togglFetchReportImpl(message.date)
+            .then(report => {
+                sendResponse({
+                    success: true,
+                    report: report
+                });
+            })
+            .catch(err => {
+                console.warn('BACKGROUND', err);
+                sendResponse({
+                    success: false,
+                    error: err
+                });
+            });
     }
     return true;
 });
