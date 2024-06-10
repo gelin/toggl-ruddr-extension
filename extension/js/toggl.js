@@ -115,7 +115,48 @@ export async function togglFetchReportImpl(date) {
         });
 }
 
+/**
+ * Output format:
+ * ```
+ * [
+ *   {
+ *       "project_id": 123,
+ *       "project": "project name",
+ *       "client_id": 234,
+ *       "client": "client name",
+ *       "color": "#123abc",
+ *       "seconds": 12345,
+ *       "description": "line 1\nline 2"
+ *   },...
+ * ]
+ * ```
+ */
 function togglConvertReport(json) {
-    // TODO
-    return json;
+    const items = [];
+    json?.groups?.forEach(group => {
+        const projectId = group.id;
+        const descriptionLines = [];
+        let seconds = 0;
+        let color = '#000';
+        group?.sub_groups?.forEach(subGroup => {
+            descriptionLines.push(subGroup.title);
+            seconds += subGroup.seconds;
+            color = subGroup.project_hex_color;
+        });
+        if (seconds > 0) {
+            items.push({
+                project_id: projectId,
+                // TODO: project name, client
+                color: color,
+                seconds: toggleRoundSeconds(seconds),
+                description: descriptionLines.join('\n')
+            })
+        }
+    });
+    return items;
+}
+
+function toggleRoundSeconds(seconds) {
+    const quarters = Math.ceil(seconds / 15);
+    return quarters * 15;
 }
