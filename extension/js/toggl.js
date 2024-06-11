@@ -7,6 +7,7 @@ export function togglGetWorkspaceId() {
 }
 
 export function togglSaveSettings(settings) {
+    togglRefreshClients(settings.token);
     return chrome.storage.sync.set({
         'toggl_api_token': settings.token,
         'toggl_workspace_id': settings.workspace
@@ -70,6 +71,61 @@ export async function togglRefreshWorkspaces(token) {
         })
         .catch(err => {
             console.log('Failed to fetch me/workspaces', err);
+            throw err;
+        });
+}
+
+const clientNamesCache = new Map();
+
+async function togglGetClientName(clientId) {
+    if (clientNamesCache.size === 0) {
+        const savedMap = await togglGetClientsMap();
+        savedMap.forEach(name, id => clientNamesCache.set(id, name));
+    }
+    if (!clientNamesCache.has(clientId)) {
+        // TODO: fetch specific client name
+        return null;
+    }
+    return clientNamesCache.get(clientId);
+}
+
+async function togglGetClientsMap() {
+    const clients = await chrome.storage.local.get('toggl_clients')
+        .then(o => o?.toggl_clients || []).catch(_ => []);
+    const idToNameMap = clients.reduce(map, client => {
+        map[client.id] = client.name;
+        return map;
+    }, new Map());
+    return idToNameMap;
+}
+
+function togglSetClients(clients) {
+    chrome.storage.local.set({
+        'toggl_clients': clients
+    })
+}
+
+async function togglRefreshClients(token) {
+    const apiToken = token ?? await togglGetApiToken();
+    return fetch("https://api.track.toggl.com/api/v9/me/clients", {
+        method: "GET",
+        headers: {
+            'Authorization': `Basic ${btoa(apiToken + ':api_token')}`
+        },
+    })
+        .then((resp) => resp.json())
+        .then((json) => {
+            const clients = json.map(value => {
+                return {
+                    'id': value.id,
+                    'name': value.name
+                }
+            });
+            togglSetClients(clients);
+            return clients;
+        })
+        .catch(err => {
+            console.log('Failed to fetch me/clients', err);
             throw err;
         });
 }

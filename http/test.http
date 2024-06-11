@@ -2,12 +2,28 @@
 GET https://api.track.toggl.com/api/v9/me/logged
 Authorization: Basic {{api_token}} api_token
 
+### me
+GET https://api.track.toggl.com/api/v9/me?with_related_data=true
+Authorization: Basic {{api_token}} api_token
+
 ### preferences
 GET https://api.track.toggl.com/api/v9/me/preferences
 Authorization: Basic {{api_token}} api_token
 
 ### workspaces
 GET https://api.track.toggl.com/api/v9/me/workspaces
+Authorization: Basic {{api_token}} api_token
+
+### clients
+GET https://api.track.toggl.com/api/v9/me/clients
+Authorization: Basic {{api_token}} api_token
+
+### workspace clients
+GET https://api.track.toggl.com/api/v9/workspaces/7174800/clients
+Authorization: Basic {{api_token}} api_token
+
+### projects
+GET https://api.track.toggl.com/api/v9/me/projects
 Authorization: Basic {{api_token}} api_token
 
 ### time entries
