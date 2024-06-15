@@ -7,11 +7,12 @@ export function togglGetWorkspaceId() {
 }
 
 export function togglSaveSettings(settings) {
-    togglRefreshClients(settings.token);
     return chrome.storage.sync.set({
         'toggl_api_token': settings.token,
         'toggl_workspace_id': settings.workspace
-    });
+    })
+        .then(_ => togglRefreshClients(settings.token))
+        .then(_ => togglRefreshProjects(settings.token));
 }
 
 export function togglTestToken(token) {
@@ -75,32 +76,21 @@ export async function togglRefreshWorkspaces(token) {
         });
 }
 
-const clientNamesCache = new Map();
-
-async function togglGetClientName(clientId) {
-    if (clientNamesCache.size === 0) {
-        const savedMap = await togglGetClientsMap();
-        savedMap.forEach(name, id => clientNamesCache.set(id, name));
-    }
-    if (!clientNamesCache.has(clientId)) {
-        // TODO: fetch specific client name
-        return null;
-    }
-    return clientNamesCache.get(clientId);
-}
-
 async function togglGetClientsMap() {
     const clients = await chrome.storage.local.get('toggl_clients')
         .then(o => o?.toggl_clients || []).catch(_ => []);
-    const idToNameMap = clients.reduce(map, client => {
-        map[client.id] = client.name;
+    const idToClientMap = clients.reduce((map, client) => {
+        map.set(client.id, {
+            id: client.id,
+            name: client.name
+        });
         return map;
     }, new Map());
-    return idToNameMap;
+    return idToClientMap;
 }
 
 function togglSetClients(clients) {
-    chrome.storage.local.set({
+    return chrome.storage.local.set({
         'toggl_clients': clients
     })
 }
@@ -117,15 +107,60 @@ async function togglRefreshClients(token) {
         .then((json) => {
             const clients = json.map(value => {
                 return {
-                    'id': value.id,
-                    'name': value.name
+                    id: value.id,
+                    name: value.name
                 }
             });
-            togglSetClients(clients);
-            return clients;
+            return togglSetClients(clients);
         })
         .catch(err => {
             console.log('Failed to fetch me/clients', err);
+            throw err;
+        });
+}
+
+async function togglGetProjectsMap() {
+    const projects = await chrome.storage.local.get('toggl_projects')
+        .then(o => o?.toggl_projects || []).catch(_ => []);
+    const clientsMap = await togglGetClientsMap();
+    const idToProjectMap = projects.reduce((map, project) => {
+        map.set(project.id, {
+            id: project.id,
+            name: project.name,
+            client: clientsMap.get(project.client_id)
+        });
+        return map;
+    }, new Map());
+    return idToProjectMap;
+}
+
+function togglSetProjects(projects) {
+    return chrome.storage.local.set({
+        'toggl_projects': projects
+    })
+}
+
+async function togglRefreshProjects(token) {
+    const apiToken = token ?? await togglGetApiToken();
+    return fetch("https://api.track.toggl.com/api/v9/me/projects", {
+        method: "GET",
+        headers: {
+            'Authorization': `Basic ${btoa(apiToken + ':api_token')}`
+        },
+    })
+        .then((resp) => resp.json())
+        .then((json) => {
+            const projects = json.map(value => {
+                return {
+                    id: value.id,
+                    name: value.name,
+                    client_id: value.client_id
+                }
+            });
+            return togglSetProjects(projects);
+        })
+        .catch(err => {
+            console.log('Failed to fetch me/projects', err);
             throw err;
         });
 }
@@ -176,18 +211,23 @@ export async function togglFetchReportImpl(date) {
  * ```
  * [
  *   {
- *       "project_id": 123,
- *       "project": "project name",
- *       "client_id": 234,
- *       "client": "client name",
- *       "color": "#123abc",
- *       "seconds": 12345,
- *       "description": "line 1\nline 2"
+ *      project: {
+ *          id: 123,
+ *          name: "project name",
+ *          client: {
+ *              id: 234,
+ *              name: "client name"
+ *          }
+ *      },
+ *      color: "#123abc",
+ *      seconds: 12345,
+ *      description: "line 1\nline 2"
  *   },...
  * ]
  * ```
  */
-function togglConvertReport(json) {
+async function togglConvertReport(json) {
+    const projectsMap = await togglGetProjectsMap();
     const items = [];
     json?.groups?.forEach(group => {
         const projectId = group.id;
@@ -201,8 +241,7 @@ function togglConvertReport(json) {
         });
         if (seconds > 0) {
             items.push({
-                project_id: projectId,
-                // TODO: project name, client
+                project: projectsMap.get(projectId),
                 color: color,
                 seconds: toggleRoundSeconds(seconds),
                 description: descriptionLines.join('\n')
