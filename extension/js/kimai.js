@@ -50,7 +50,6 @@ function onTogglButtonClick() {
 }
 
 function getReportDate() {
-    console.log(moment());
     const dateInput = document.getElementById('timesheet_edit_form_begin_date');
     return moment(dateInput.value, dateInput.dataset.format).format('YYYY-MM-DD');
 }
