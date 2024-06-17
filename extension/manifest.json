@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Toggl + Kimai",
-  "description": "Hepler to insert tracked hours from Toggl to Kimai",
+  "description": "Helper to insert tracked hours from Toggl to Kimai",
   "version": "0.1",
   "icons": {
     "16": "img/icon-16.png",
@@ -27,6 +27,7 @@
   "content_scripts": [
     {
       "js": [
+        "js/moment.js",
         "js/kimai.js"
       ],
       "matches": [

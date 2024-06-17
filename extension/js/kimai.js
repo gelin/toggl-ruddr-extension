@@ -1,9 +1,8 @@
 let togglFetchReport;
 
 (async () => {
-    const togglSrc = chrome.runtime.getURL('js/toggl.js');
-    const toggl = await import(togglSrc);
-    togglFetchReport = toggl.togglFetchReport;
+    const togglModule = await import(chrome.runtime.getURL('js/toggl.js'));
+    togglFetchReport = togglModule.togglFetchReport;
 })();
 
 window.addEventListener('load', main);
@@ -46,6 +45,12 @@ function togglUpdateForm() {
 
 function onTogglButtonClick() {
     // TODO
-    togglFetchReport('2024-04-18')
+    togglFetchReport(getReportDate())
         .then(report => console.log('KIMAI', report));
+}
+
+function getReportDate() {
+    console.log(moment());
+    const dateInput = document.getElementById('timesheet_edit_form_begin_date');
+    return moment(dateInput.value, dateInput.dataset.format).format('YYYY-MM-DD');
 }
