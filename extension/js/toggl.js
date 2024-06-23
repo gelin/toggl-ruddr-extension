@@ -252,6 +252,7 @@ async function togglConvertReport(json) {
 }
 
 function toggleRoundSeconds(seconds) {
-    const quarters = Math.ceil(seconds / 15);
-    return quarters * 15;
+    const fifteenMinutes = 15 * 60;
+    const quarters = Math.ceil(seconds / fifteenMinutes);
+    return quarters * fifteenMinutes;
 }

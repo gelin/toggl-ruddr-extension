@@ -36,7 +36,6 @@ function togglAddButton() {
 }
 
 function onTogglButtonClick() {
-    // TODO
     togglFetchReport(togglGetReportDate())
         .then(report => {
             console.log('KIMAI', report);
@@ -56,12 +55,36 @@ function togglUpdateReport(report) {
         return;
     }
 
-    panel.innerText = "test\ntest\ntest";
+    const items = report.map(item => {
+        const time = moment.duration(item.seconds, 'seconds');
+
+        const paragraph = document.createElement('article');
+
+        const header = document.createElement('h4');
+        header.innerText = time.hours() + ':' + time.minutes() +
+            ' • ' + (item.project?.name || 'Unknown Project') +
+            ' • ' + (item.project?.client?.name || '');
+        header.style['color'] = item.color;
+        header.style['margin-bottom'] = '0';
+
+        const body = document.createElement('p');
+        body.innerText = item.description;
+        paragraph.replaceChildren(header, body);
+
+        return paragraph;
+    });
+
+    panel.replaceChildren(...items);
 }
 
 function togglAddReportPanel() {
     if (document.getElementById('toggl_report')) {
         return;
+    }
+
+    const existDialog = document.querySelector('.modal-dialog');
+    if (existDialog) {
+        existDialog.style['max-width'] = '1200px';
     }
 
     const form = document.querySelector("form[name='timesheet_edit_form']");
@@ -80,6 +103,7 @@ function togglAddReportPanel() {
     }
     existBody.className = '';
     existBody.style['flex-grow'] = '4';
+    existBody.style['flex-basis'] = '80%';
 
     const newBody = document.createElement('div');
     newBody.className = 'modal-body';
