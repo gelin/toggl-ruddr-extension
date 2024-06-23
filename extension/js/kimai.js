@@ -38,7 +38,7 @@ function togglAddButton() {
 function onTogglButtonClick() {
     togglFetchReport(togglGetReportDate())
         .then(report => {
-            console.log('KIMAI', report);
+            // console.log('KIMAI', report);
             togglUpdateReport(report);
         });
 }
@@ -55,13 +55,17 @@ function togglUpdateReport(report) {
         return;
     }
 
+    function formatDuration(duration) {
+        return duration.hours() + ':' + String(duration.minutes()).padStart(2, '0');
+    }
+
     const items = report.map(item => {
         const time = moment.duration(item.seconds, 'seconds');
 
         const paragraph = document.createElement('article');
 
         const header = document.createElement('h4');
-        header.innerText = time.hours() + ':' + time.minutes() +
+        header.innerText = formatDuration(time) +
             ' • ' + (item.project?.name || 'Unknown Project') +
             ' • ' + (item.project?.client?.name || '');
         header.style['color'] = item.color;
@@ -75,6 +79,17 @@ function togglUpdateReport(report) {
     });
 
     panel.replaceChildren(...items);
+
+    if (report.length === 0) {
+        panel.innerText = '[no time tracked in Toggl]';
+        return;
+    }
+
+    const footer = document.createElement('h3');
+    const totalSeconds = report.reduce((a, i) => a + i.seconds, 0);
+    const totalTime = moment.duration(totalSeconds, 'seconds');
+    footer.innerText = formatDuration(totalTime);
+    panel.appendChild(footer);
 }
 
 function togglAddReportPanel() {
