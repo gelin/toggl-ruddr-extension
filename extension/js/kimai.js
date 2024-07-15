@@ -94,6 +94,7 @@ function togglUpdateReport(report) {
 
 function togglAddReportPanel() {
     if (document.getElementById('toggl_report')) {
+        togglDeleteReportPanel();
         return;
     }
 
@@ -106,7 +107,6 @@ function togglAddReportPanel() {
     if (!form) {
         return;
     }
-
     const header = form.querySelector('.modal-header');
     if (!header) {
         return;
@@ -133,5 +133,44 @@ function togglAddReportPanel() {
     newBody.appendChild(existBody);
     newBody.appendChild(panel);
 
+    header.after(newBody);
+}
+
+function togglDeleteReportPanel() {
+    const reportPanel = document.getElementById('toggl_report');
+    if (!reportPanel) {
+        return;
+    }
+    reportPanel.remove();
+
+    const existDialog = document.querySelector('.modal-dialog');
+    if (existDialog) {
+        existDialog.style['max-width'] = '720px';
+    }
+
+    const form = document.querySelector("form[name='timesheet_edit_form']");
+    if (!form) {
+        return;
+    }
+    const header = form.querySelector('.modal-header');
+    if (!header) {
+        return;
+    }
+
+    const existBody = form.querySelector('.modal-body');
+    if (!existBody) {
+        return;
+    }
+    const oldBody = existBody.querySelector('div');
+    if (!oldBody) {
+        return;
+    }
+
+    const newBody = document.createElement('div');
+    newBody.className = 'modal-body';
+    newBody.style['display'] = 'block';
+    newBody.append(...oldBody.childNodes);
+
+    existBody.remove();
     header.after(newBody);
 }
