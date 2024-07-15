@@ -33,6 +33,11 @@ function togglAddButton() {
     togglButton.addEventListener('click', onTogglButtonClick);
     togglButton.innerText = 'Toggl ▶';
     header.appendChild(togglButton);
+
+    const existDialog = document.querySelector('.modal-dialog');
+    if (existDialog) {
+        existDialog.style['max-width'] = '720px';
+    }
 }
 
 function onTogglButtonClick() {
