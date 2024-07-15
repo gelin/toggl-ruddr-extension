@@ -53,6 +53,10 @@ function togglGetReportDate() {
     return moment(dateInput.value, dateInput.dataset.format).format('YYYY-MM-DD');
 }
 
+function togglFormatDuration(duration) {
+    return duration.hours() + ':' + String(duration.minutes()).padStart(2, '0');
+}
+
 function togglUpdateReport(report) {
     togglAddReportPanel();
     const panel = document.getElementById('toggl_report');
@@ -60,17 +64,15 @@ function togglUpdateReport(report) {
         return;
     }
 
-    function formatDuration(duration) {
-        return duration.hours() + ':' + String(duration.minutes()).padStart(2, '0');
-    }
-
     const items = report.map(item => {
         const time = moment.duration(item.seconds, 'seconds');
 
         const paragraph = document.createElement('article');
+        paragraph.style['cursor'] = 'pointer';
+        paragraph.addEventListener('click', ev => togglFillFormFromReport(item));
 
         const header = document.createElement('h4');
-        header.innerText = formatDuration(time) +
+        header.innerText = togglFormatDuration(time) +
             ' • ' + (item.project?.name || 'Unknown Project') +
             ' • ' + (item.project?.client?.name || '');
         header.style['color'] = item.color;
@@ -86,20 +88,33 @@ function togglUpdateReport(report) {
     panel.replaceChildren(...items);
 
     if (report.length === 0) {
-        panel.innerText = '[no time tracked in Toggl]';
+        panel.innerText = '[No time tracked in Toggl]';
         return;
     }
 
     const footer = document.createElement('h3');
     const totalSeconds = report.reduce((a, i) => a + i.seconds, 0);
     const totalTime = moment.duration(totalSeconds, 'seconds');
-    footer.innerText = formatDuration(totalTime);
+    footer.innerText = togglFormatDuration(totalTime);
     panel.appendChild(footer);
+}
+
+function togglFillFormFromReport(item) {
+    const duration = document.getElementById('timesheet_edit_form_duration');
+    if (duration) {
+        duration.value = togglFormatDuration(moment.duration(item.seconds, 'seconds'));
+        duration.dispatchEvent(new Event('change'));
+    }
+
+    const description = document.getElementById('timesheet_edit_form_description');
+    if (description) {
+        description.value = item.description;
+        description.style['height'] = description.scrollHeight + 'px';
+    }
 }
 
 function togglAddReportPanel() {
     if (document.getElementById('toggl_report')) {
-        togglDeleteReportPanel();
         return;
     }
 
@@ -138,44 +153,5 @@ function togglAddReportPanel() {
     newBody.appendChild(existBody);
     newBody.appendChild(panel);
 
-    header.after(newBody);
-}
-
-function togglDeleteReportPanel() {
-    const reportPanel = document.getElementById('toggl_report');
-    if (!reportPanel) {
-        return;
-    }
-    reportPanel.remove();
-
-    const existDialog = document.querySelector('.modal-dialog');
-    if (existDialog) {
-        existDialog.style['max-width'] = '720px';
-    }
-
-    const form = document.querySelector("form[name='timesheet_edit_form']");
-    if (!form) {
-        return;
-    }
-    const header = form.querySelector('.modal-header');
-    if (!header) {
-        return;
-    }
-
-    const existBody = form.querySelector('.modal-body');
-    if (!existBody) {
-        return;
-    }
-    const oldBody = existBody.querySelector('div');
-    if (!oldBody) {
-        return;
-    }
-
-    const newBody = document.createElement('div');
-    newBody.className = 'modal-body';
-    newBody.style['display'] = 'block';
-    newBody.append(...oldBody.childNodes);
-
-    existBody.remove();
     header.after(newBody);
 }
