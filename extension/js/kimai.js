@@ -1,8 +1,10 @@
 let togglFetchReport;
+let togglSaveProjectMapping;
 
 (async () => {
     const togglModule = await import(chrome.runtime.getURL('js/toggl.js'));
     togglFetchReport = togglModule.togglFetchReport;
+    togglSaveProjectMapping = togglModule.togglSaveProjectMapping;
 })();
 
 
@@ -43,9 +45,14 @@ function togglAddButton() {
 function onTogglButtonClick() {
     togglFetchReport(togglGetReportDate())
         .then(report => {
-            // console.log('KIMAI', report);
+            console.log('KIMAI', report);
             togglUpdateReport(report);
-        });
+            // TODO
+            const mapping = togglGetCustomerProjectActivity();
+            console.log('KIMAI', mapping);
+            togglSaveProjectMapping(190909623, mapping);
+        })
+        .catch(err => console.warn(err));
 }
 
 function togglGetReportDate() {
@@ -154,4 +161,30 @@ function togglAddReportPanel() {
     newBody.appendChild(panel);
 
     header.after(newBody);
+}
+
+function togglGetCustomerProjectActivity() {
+    const customer = togglReadSelect('timesheet_edit_form_customer-ts-control');
+    const project = togglReadSelect('timesheet_edit_form_project-ts-control');
+    const activity = togglReadSelect('timesheet_edit_form_activity-ts-control');
+    return {
+        customer: customer?.id,
+        project: project?.id,
+        activity: activity?.id
+    };
+}
+
+function togglReadSelect(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) {
+        return {};
+    }
+    const dataDiv = input.previousElementSibling;
+    if (!dataDiv) {
+        return {};
+    }
+    return {
+        id: dataDiv.dataset.value,
+        name: dataDiv.innerText
+    }
 }

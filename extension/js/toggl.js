@@ -165,6 +165,29 @@ async function togglRefreshProjects(token) {
         });
 }
 
+/**
+ * Accepts project mapping and saves in into sync storage.
+ * @param key id of the project
+ * @param mapping the mapping object
+ * @returns storage set future
+ */
+export function togglSaveProjectMapping(key, mapping) {
+    return chrome.storage.sync.get('toggl_project_mappings')
+        .then(o => {
+            let m = o?.toggl_project_mappings || {};
+            m[key] = mapping;
+            return chrome.storage.sync.set({
+                'toggl_project_mappings': m
+            });
+        });
+}
+
+function togglGetProjectMappings() {
+    return chrome.storage.sync.get('toggl_project_mappings')
+        .then(o => o?.toggl_project_mappings || {})
+        .catch(_ => {});
+}
+
 export function togglFetchReport(date) {
     const message = {
         method: 'togglFetchReport',
@@ -228,6 +251,7 @@ export async function togglFetchReportImpl(date) {
  */
 async function togglConvertReport(json) {
     const projectsMap = await togglGetProjectsMap();
+    const projectMappings = await togglGetProjectMappings();
     const items = [];
     json?.groups?.forEach(group => {
         const projectId = group.id;
@@ -244,7 +268,8 @@ async function togglConvertReport(json) {
                 project: projectsMap.get(projectId),
                 color: color,
                 seconds: toggleRoundSeconds(seconds),
-                description: descriptionLines.join('\n')
+                description: descriptionLines.join('\n'),
+                mapping: projectMappings[projectId]
             })
         }
     });
