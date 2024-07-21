@@ -31,7 +31,7 @@
         "js/kimai.js"
       ],
       "matches": [
-        "https://timesheets.netvalue.nz/en_NZ/timesheet/"
+        "https://timesheets.netvalue.nz/en_NZ/timesheet/*"
       ]
     }
   ],

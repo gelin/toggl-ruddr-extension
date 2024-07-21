@@ -7,6 +7,7 @@ let togglSaveProjectMapping;
     togglSaveProjectMapping = togglModule.togglSaveProjectMapping;
 })();
 
+let togglLastProjectIdClicked;
 
 const modal = document.getElementById('remote_form_modal');
 const observer = new MutationObserver(mutations => {
@@ -40,19 +41,27 @@ function togglAddButton() {
     if (existDialog) {
         existDialog.style['max-width'] = '720px';
     }
+
+    const saveButton = document.getElementById('form_modal_save');
+    if (saveButton) {
+        saveButton.addEventListener('click', onTogglSaveButtonClick);
+    }
 }
 
 function onTogglButtonClick() {
     togglFetchReport(togglGetReportDate())
         .then(report => {
-            console.log('KIMAI', report);
+            console.log('Got report', report);
             togglUpdateReport(report);
-            // TODO
-            const mapping = togglGetCustomerProjectActivity();
-            console.log('KIMAI', mapping);
-            togglSaveProjectMapping(190909623, mapping);
         })
         .catch(err => console.warn(err));
+}
+
+function onTogglSaveButtonClick() {
+    if (togglLastProjectIdClicked) {
+        const mapping = togglGetCustomerProjectActivity();
+        togglSaveProjectMapping(togglLastProjectIdClicked, mapping);
+    }
 }
 
 function togglGetReportDate() {
@@ -107,6 +116,8 @@ function togglUpdateReport(report) {
 }
 
 function togglFillFormFromReport(item) {
+    togglLastProjectIdClicked = item?.project?.id;
+
     const duration = document.getElementById('timesheet_edit_form_duration');
     if (duration) {
         duration.value = togglFormatDuration(moment.duration(item.seconds, 'seconds'));
@@ -134,6 +145,8 @@ function togglFillFormFromReport(item) {
 }
 
 function togglAddReportPanel() {
+    togglLastProjectIdClicked = null;
+
     if (document.getElementById('toggl_report')) {
         return;
     }

@@ -172,6 +172,7 @@ async function togglRefreshProjects(token) {
  * @returns storage set future
  */
 export function togglSaveProjectMapping(key, mapping) {
+    console.log('Saving project mapping', key, mapping);
     return chrome.storage.sync.get('toggl_project_mappings')
         .then(o => {
             let m = o?.toggl_project_mappings || {};
