@@ -132,15 +132,15 @@ function togglFillFormFromReport(item) {
 
     const customerId = item?.mapping?.customer;
     if (customerId) {
-        togglClickSelect('timesheet_edit_form_customer-ts-dropdown', customerId);
+        togglClickSelect('timesheet_edit_form_customer', customerId);
     }
     const projectId = item?.mapping?.project;
     if (projectId) {
-        togglClickSelect('timesheet_edit_form_customer-ts-dropdown', projectId);
+        togglClickSelect('timesheet_edit_form_customer', projectId);
     }
     const activityId = item?.mapping?.activity;
     if (activityId) {
-        togglClickSelect('timesheet_edit_form_activity-ts-dropdown', activityId);
+        togglClickSelect('timesheet_edit_form_activity', activityId);
     }
 }
 
@@ -190,9 +190,9 @@ function togglAddReportPanel() {
 }
 
 function togglGetCustomerProjectActivity() {
-    const customer = togglReadSelect('timesheet_edit_form_customer-ts-control');
-    const project = togglReadSelect('timesheet_edit_form_project-ts-control');
-    const activity = togglReadSelect('timesheet_edit_form_activity-ts-control');
+    const customer = togglReadSelect('timesheet_edit_form_customer');
+    const project = togglReadSelect('timesheet_edit_form_project');
+    const activity = togglReadSelect('timesheet_edit_form_activity');
     return {
         customer: customer?.id,
         project: project?.id,
@@ -200,27 +200,29 @@ function togglGetCustomerProjectActivity() {
     };
 }
 
-function togglReadSelect(inputId) {
-    const input = document.getElementById(inputId);
-    if (!input) {
-        return {};
-    }
-    const dataDiv = input.previousElementSibling;
-    if (!dataDiv) {
+function togglReadSelect(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) {
         return {};
     }
     return {
-        id: dataDiv.dataset.value,
-        name: dataDiv.innerText
+        id: select.value,
     }
 }
 
-function togglClickSelect(dropDownId, optionId) {
-    const listboxDiv = document.getElementById(dropDownId);
-    if (!listboxDiv) {
+function togglClickSelect(selectId, optionId) {
+    const select = document.getElementById(selectId);
+    if (!select) {
         return;
     }
-    const optionDiv = listboxDiv.querySelector(`[data-value='${optionId}']`);
+    const formSelectDiv = select.nextElementSibling;
+    if (!formSelectDiv) {
+        return;
+    }
+    // TODO
+    // formSelectDiv.click();
+
+    const optionDiv = formSelectDiv.querySelector(`[data-value='${optionId}']`);
     if (!optionDiv) {
         return;
     }
