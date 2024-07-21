@@ -118,6 +118,19 @@ function togglFillFormFromReport(item) {
         description.value = item.description;
         description.style['height'] = description.scrollHeight + 'px';
     }
+
+    const customerId = item?.mapping?.customer;
+    if (customerId) {
+        togglClickSelect('timesheet_edit_form_customer-ts-dropdown', customerId);
+    }
+    const projectId = item?.mapping?.project;
+    if (projectId) {
+        togglClickSelect('timesheet_edit_form_customer-ts-dropdown', projectId);
+    }
+    const activityId = item?.mapping?.activity;
+    if (activityId) {
+        togglClickSelect('timesheet_edit_form_activity-ts-dropdown', activityId);
+    }
 }
 
 function togglAddReportPanel() {
@@ -187,4 +200,16 @@ function togglReadSelect(inputId) {
         id: dataDiv.dataset.value,
         name: dataDiv.innerText
     }
+}
+
+function togglClickSelect(dropDownId, optionId) {
+    const listboxDiv = document.getElementById(dropDownId);
+    if (!listboxDiv) {
+        return;
+    }
+    const optionDiv = listboxDiv.querySelector(`[data-value='${optionId}']`);
+    if (!optionDiv) {
+        return;
+    }
+    optionDiv.click();
 }
