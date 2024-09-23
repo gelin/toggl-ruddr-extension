@@ -131,17 +131,23 @@ function togglFillFormFromReport(item) {
     }
 
     const customerId = item?.mapping?.customer;
+    let promise;
     if (customerId) {
-        togglClickSelect('timesheet_edit_form_customer', customerId);
+        promise = togglClickSelect('timesheet_edit_form_customer', customerId);
     }
     const projectId = item?.mapping?.project;
     if (projectId) {
-        togglClickSelect('timesheet_edit_form_customer', projectId);
+        promise = promise?.then(() =>
+            togglClickSelect('timesheet_edit_form_project', projectId)
+        );
     }
     const activityId = item?.mapping?.activity;
     if (activityId) {
-        togglClickSelect('timesheet_edit_form_activity', activityId);
+        promise = promise?.then(() =>
+            togglClickSelect('timesheet_edit_form_activity', activityId)
+        );
     }
+    promise?.catch(err => console.warn(err));
 }
 
 function togglAddReportPanel() {
@@ -213,18 +219,38 @@ function togglReadSelect(selectId) {
 function togglClickSelect(selectId, optionId) {
     const select = document.getElementById(selectId);
     if (!select) {
-        return;
+        return Promise.reject(new Error(`#${selectId} not found`));
     }
     const formSelectDiv = select.nextElementSibling;
     if (!formSelectDiv) {
-        return;
+        return Promise.reject(new Error(`#${selectId} next sibling not found`));
     }
-    // TODO
-    // formSelectDiv.click();
+    const controlDiv = formSelectDiv.querySelector('.ts-control');
+    if (!controlDiv) {
+        return Promise.reject(new Error(`#${selectId} .ts-control not found`));
+    }
 
-    const optionDiv = formSelectDiv.querySelector(`[data-value='${optionId}']`);
-    if (!optionDiv) {
-        return;
-    }
-    optionDiv.click();
+    // TODO: pre-load select options some way
+    return new Promise((resolve, reject) => {
+        const optionDiv = formSelectDiv.querySelector(`[data-value='${optionId}']`);
+        if (optionDiv) {
+            optionDiv.click();     // click on option
+            resolve();
+        } else {
+            controlDiv.click();     // click on control to load and expand list of options
+            const observer = new MutationObserver(mutations => {
+                observer.disconnect();
+                const optionDiv = formSelectDiv.querySelector(`[data-value='${optionId}']`);
+                if (optionDiv) {
+                    optionDiv.click();      // click on option
+                    // controlDiv.click();     // click on control to close the selection
+                    resolve();
+                } else {
+                    reject(new Error(`[data-value='${optionId}'] not found`));
+                }
+            });
+            // wait for options to be loaded
+            observer.observe(formSelectDiv, { childList: true, subtree: true });
+        }
+    });
 }
