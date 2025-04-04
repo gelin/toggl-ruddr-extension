@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Toggl + Kimai",
-  "description": "Helper to insert tracked hours from Toggl to Kimai",
+  "name": "Toggl + Ruddr",
+  "description": "Helper to insert tracked hours from Toggl to Ruddr",
   "version": "0.1",
   "icons": {
     "16": "img/icon-16.png",
@@ -28,10 +28,10 @@
     {
       "js": [
         "js/moment.js",
-        "js/kimai.js"
+        "js/ruddr.js"
       ],
       "matches": [
-        "https://timesheets.netvalue.nz/en_NZ/timesheet/*"
+        "https://ruddr.io/app/net-value/time/*"
       ]
     }
   ],
@@ -41,7 +41,7 @@
         "js/toggl.js"
       ],
       "matches": [
-        "https://timesheets.netvalue.nz/*"
+        "https://ruddr.io/*"
       ]
     }
   ]
