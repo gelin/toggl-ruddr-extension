@@ -237,7 +237,7 @@ function togglClickSelect(selectId, optionId) {
             optionDiv.click();     // click on option
             resolve();
         } else {
-            controlDiv.click();     // click on control to load and expand list of options
+            controlDiv.click();     // click on control to load and expand the list of options
             const observer = new MutationObserver(mutations => {
                 observer.disconnect();
                 const optionDiv = formSelectDiv.querySelector(`[data-value='${optionId}']`);

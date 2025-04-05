@@ -31,7 +31,7 @@
         "js/ruddr.js"
       ],
       "matches": [
-        "https://ruddr.io/app/net-value/time/*"
+        "https://ruddr.io/app/*/time/*"
       ]
     }
   ],
