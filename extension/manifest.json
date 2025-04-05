@@ -31,7 +31,8 @@
         "js/ruddr.js"
       ],
       "matches": [
-        "https://ruddr.io/app/*/time/*"
+        "https://ruddr.io/app/*/time/*",
+        "https://www.ruddr.io/app/*/time/*"
       ]
     }
   ],
@@ -41,7 +42,8 @@
         "js/toggl.js"
       ],
       "matches": [
-        "https://ruddr.io/*"
+        "https://ruddr.io/*",
+        "https://www.ruddr.io/*"
       ]
     }
   ]

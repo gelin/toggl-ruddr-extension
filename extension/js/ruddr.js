@@ -9,43 +9,46 @@ let togglSaveProjectMapping;
 
 let togglLastProjectIdClicked;
 
-const modal = document.getElementById('remote_form_modal');
 const observer = new MutationObserver(mutations => {
     togglAddButton();
 });
-observer.observe(modal, { childList: true, subtree: true });
+observer.observe(document.body, { childList: true });
+// TODO: Is it possible to observe not the entire body?
 
 function togglAddButton() {
     if (document.getElementById('toggl_button')) {
         return;
     }
 
-    const form = document.querySelector("form[name='timesheet_edit_form']");
-    if (!form) {
+    const dialogDiv = document.querySelector('body > div:last-of-type');
+    if (!dialogDiv) {
         return;
     }
 
-    const header = form.querySelector('.modal-header');
+    const header = dialogDiv.querySelector('header h5');
     if (!header) {
         return;
+    }
+    if (header.innerText !== 'New Entry') {
+        return; // not the New Entry dialogue
     }
 
     const togglButton = document.createElement('h5');
     togglButton.id = 'toggl_button';
     togglButton.className = 'modal-title btn';
     togglButton.addEventListener('click', onTogglButtonClick);
-    togglButton.innerText = 'Toggl ▶';
+    togglButton.innerText = '◀ Toggl';
     header.appendChild(togglButton);
 
-    const existDialog = document.querySelector('.modal-dialog');
-    if (existDialog) {
-        existDialog.style['max-width'] = '720px';
-    }
-
-    const saveButton = document.getElementById('form_modal_save');
-    if (saveButton) {
-        saveButton.addEventListener('click', onTogglSaveButtonClick);
-    }
+    // const existDialog = document.querySelector('.modal-dialog');
+    // if (existDialog) {
+    //     existDialog.style['max-width'] = '720px';
+    // }
+    //
+    // const saveButton = document.getElementById('form_modal_save');
+    // if (saveButton) {
+    //     saveButton.addEventListener('click', onTogglSaveButtonClick);
+    // }
 }
 
 function onTogglButtonClick() {
