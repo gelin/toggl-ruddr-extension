@@ -36,6 +36,12 @@ function togglAddButton() {
 
     const form = dialogDiv.querySelector('form');
     if (!form) {
+        const dialogObserver = new MutationObserver(mutations => {
+            dialogObserver.disconnect();
+            togglAddButton();
+        });
+        // wait for the form to be loaded
+        dialogObserver.observe(dialogDiv, { childList: true, subtree: true });
         return;
     }
     const entryDetailsHeader = form.querySelector('div:nth-child(2) > div > div');
