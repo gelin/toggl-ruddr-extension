@@ -67,7 +67,9 @@ function togglAddButton() {
 }
 
 function onTogglButtonClick() {
-    togglFetchReport(togglGetReportDate())
+    const date = togglGetReportDate();
+    console.log(`Fetching Toggl report for date: ${date}`);
+    togglFetchReport(date)
         .then(report => {
             console.log('Got report', report);
             togglUpdateReport(report);
@@ -82,9 +84,18 @@ function onTogglSaveButtonClick() {
     }
 }
 
+function toggleFindForm() {
+    const dialogDiv = document.querySelector('body > div:last-of-type');
+    if (!dialogDiv) {
+        return null;
+    }
+    return dialogDiv.querySelector('form');
+}
+
 function togglGetReportDate() {
-    const dateInput = document.getElementById('timesheet_edit_form_begin_date');
-    return moment(dateInput.value, dateInput.dataset.format).format('YYYY-MM-DD');
+    const form = toggleFindForm();
+    const dateInput = form?.querySelector('input[name="date"]');
+    return moment(dateInput?.value, 'DD/MM/YYYY').format('YYYY-MM-DD');
 }
 
 function togglFormatDuration(duration) {
