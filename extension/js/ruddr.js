@@ -190,42 +190,49 @@ function togglUpdateReport(report) {
     footer.innerText = togglFormatDuration(totalTime);
     footer.style.margin = '0.5rem';
     footer.style.fontWeight = '900';
+
     panel.appendChild(footer);
 }
 
 function togglFillFormFromReport(item) {
     togglLastProjectIdClicked = item?.project?.id;
 
-    const duration = document.getElementById('timesheet_edit_form_duration');
+    const form = toggleFindForm();
+    const duration = form?.querySelector('input[name="minutes"]');
     if (duration) {
         duration.value = togglFormatDuration(moment.duration(item.seconds, 'seconds'));
-        duration.dispatchEvent(new Event('change'));
+        // some magic to successfully dispatch the event to React
+        const event = new Event('input', { bubbles: true });
+        Object.defineProperty(event, 'target', { writable: false, value: duration });
+        duration.dispatchEvent(event);
     }
 
-    const description = document.getElementById('timesheet_edit_form_description');
+    const description = form?.querySelector('textarea[name="notes"]');
     if (description) {
         description.value = item.description;
         description.style['height'] = description.scrollHeight + 'px';
     }
 
-    const customerId = item?.mapping?.customer;
-    let promise;
-    if (customerId) {
-        promise = togglClickSelect('timesheet_edit_form_customer', customerId);
-    }
-    const projectId = item?.mapping?.project;
-    if (projectId) {
-        promise = promise?.then(() =>
-            togglClickSelect('timesheet_edit_form_project', projectId)
-        );
-    }
-    const activityId = item?.mapping?.activity;
-    if (activityId) {
-        promise = promise?.then(() =>
-            togglClickSelect('timesheet_edit_form_activity', activityId)
-        );
-    }
-    promise?.catch(err => console.warn(err));
+    // const customerId = item?.mapping?.customer;
+    // let promise;
+    // if (customerId) {
+    //     promise = togglClickSelect('timesheet_edit_form_customer', customerId);
+    // }
+    // const projectId = item?.mapping?.project;
+    // if (projectId) {
+    //     promise = promise?.then(() =>
+    //         togglClickSelect('timesheet_edit_form_project', projectId)
+    //     );
+    // }
+    // const activityId = item?.mapping?.activity;
+    // if (activityId) {
+    //     promise = promise?.then(() =>
+    //         togglClickSelect('timesheet_edit_form_activity', activityId)
+    //     );
+    // }
+    // promise?.catch(err => console.warn(err));
+
+    toggleRemoveReportPanel();
 }
 
 function togglGetCustomerProjectActivity() {
