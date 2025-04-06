@@ -20,6 +20,7 @@ function togglAddButton() {
         return;
     }
 
+    // TODO: doesn't work if <div> is the last element, works if <div/><iframe/>
     const dialogDiv = document.querySelector('body > div:last-of-type');
     if (!dialogDiv) {
         return;
@@ -55,11 +56,6 @@ function togglAddButton() {
     entryDetailsHeader.appendChild(buttonP);
     buttonP.appendChild(togglButton);
 
-    // const existDialog = document.querySelector('.modal-dialog');
-    // if (existDialog) {
-    //     existDialog.style['max-width'] = '720px';
-    // }
-    //
     // const saveButton = document.getElementById('form_modal_save');
     // if (saveButton) {
     //     saveButton.addEventListener('click', onTogglSaveButtonClick);
@@ -67,14 +63,18 @@ function togglAddButton() {
 }
 
 function onTogglButtonClick() {
-    const date = togglGetReportDate();
-    console.log(`Fetching Toggl report for date: ${date}`);
-    togglFetchReport(date)
-        .then(report => {
-            console.log('Got report', report);
-            togglUpdateReport(report);
-        })
-        .catch(err => console.warn(err));
+    if (document.getElementById('toggl_report')) {
+        toggleRemoveReportPanel();
+    } else {
+        const date = togglGetReportDate();
+        console.log(`Fetching Toggl report for date: ${date}`);
+        togglFetchReport(date)
+            .then(report => {
+                console.log('Got report', report);
+                togglUpdateReport(report);
+            })
+            .catch(err => console.warn(err));
+    }
 }
 
 function onTogglSaveButtonClick() {
@@ -98,6 +98,44 @@ function togglGetReportDate() {
     return moment(dateInput?.value, 'DD/MM/YYYY').format('YYYY-MM-DD');
 }
 
+function togglAddReportPanel() {
+    togglLastProjectIdClicked = null;
+
+    if (document.getElementById('toggl_report')) {
+        return;
+    }
+
+    const button = document.getElementById('toggl_button');
+    if (!button) {
+        return;
+    }
+
+    const panel = document.createElement('div');
+    panel.id = 'toggl_report';
+    panel.style.position = 'relative';
+    panel.style.top = '0';
+    panel.style.left = '0';
+    panel.style.width = '360px';
+    panel.style.zIndex = '100';
+    panel.style.padding = '1rem';
+    panel.style.background = 'white';
+    panel.style.border = '1px solid gray';
+    panel.style.borderRadius = '3px';
+    panel.style.textTransform = 'none';
+    panel.style.fontFamily = 'Roboto, sans-serif';
+    panel.style.fontSize = '0.875rem';
+    panel.style.fontWeight = '400';
+
+    button.insertAdjacentElement('afterend', panel);
+}
+
+function toggleRemoveReportPanel() {
+    const panel = document.getElementById('toggl_report');
+    if (panel) {
+        panel.remove();
+    }
+}
+
 function togglFormatDuration(duration) {
     return duration.hours() + ':' + String(duration.minutes()).padStart(2, '0');
 }
@@ -113,18 +151,21 @@ function togglUpdateReport(report) {
         const time = moment.duration(item.seconds, 'seconds');
 
         const paragraph = document.createElement('article');
-        paragraph.style['cursor'] = 'pointer';
+        paragraph.style.cursor = 'pointer';
+        paragraph.style.margin = '0.5rem';
         paragraph.addEventListener('click', ev => togglFillFormFromReport(item));
 
         const header = document.createElement('h4');
         header.innerText = togglFormatDuration(time) +
             ' • ' + (item.project?.name || 'Unknown Project') +
             ' • ' + (item.project?.client?.name || '');
-        header.style['color'] = item.color;
-        header.style['margin-bottom'] = '0';
+        header.style.color = item.color;
+        header.style.fontWeight = '900';
+        header.style.marginBottom = '0';
 
         const body = document.createElement('p');
         body.innerText = item.description;
+        body.style.color = 'black';
         paragraph.replaceChildren(header, body);
 
         return paragraph;
@@ -141,6 +182,8 @@ function togglUpdateReport(report) {
     const totalSeconds = report.reduce((a, i) => a + i.seconds, 0);
     const totalTime = moment.duration(totalSeconds, 'seconds');
     footer.innerText = togglFormatDuration(totalTime);
+    footer.style.margin = '0.5rem';
+    footer.style.fontWeight = '900';
     panel.appendChild(footer);
 }
 
@@ -177,51 +220,6 @@ function togglFillFormFromReport(item) {
         );
     }
     promise?.catch(err => console.warn(err));
-}
-
-function togglAddReportPanel() {
-    togglLastProjectIdClicked = null;
-
-    if (document.getElementById('toggl_report')) {
-        return;
-    }
-
-    const existDialog = document.querySelector('.modal-dialog');
-    if (existDialog) {
-        existDialog.style['max-width'] = '1200px';
-    }
-
-    const form = document.querySelector("form[name='timesheet_edit_form']");
-    if (!form) {
-        return;
-    }
-    const header = form.querySelector('.modal-header');
-    if (!header) {
-        return;
-    }
-
-    const existBody = form.querySelector('.modal-body');
-    if (!existBody) {
-        return;
-    }
-    existBody.className = '';
-    existBody.style['flex-grow'] = '4';
-    existBody.style['flex-basis'] = '80%';
-
-    const newBody = document.createElement('div');
-    newBody.className = 'modal-body';
-    newBody.style['display'] = 'flex';
-    newBody.style['gap'] = '24px';
-
-    const panel = document.createElement('div');
-    panel.id = 'toggl_report';
-    existBody.style['flex-grow'] = '1';
-    existBody.style['flex-basis'] = '20%';
-
-    newBody.appendChild(existBody);
-    newBody.appendChild(panel);
-
-    header.after(newBody);
 }
 
 function togglGetCustomerProjectActivity() {
