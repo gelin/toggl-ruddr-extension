@@ -33,12 +33,27 @@ function togglAddButton() {
         return; // not the New Entry dialogue
     }
 
-    const togglButton = document.createElement('h5');
+    const form = dialogDiv.querySelector('form');
+    if (!form) {
+        return;
+    }
+    const entryDetailsHeader = form.querySelector('div:nth-child(2) > div > div');
+    if (!entryDetailsHeader) {
+        return;
+    }
+
+    const togglButton = document.createElement('button');
     togglButton.id = 'toggl_button';
-    togglButton.className = 'modal-title btn';
+    togglButton.innerText = 'Toggl';
+    togglButton.style.display = 'block';
+    togglButton.style.marginTop = '1.5rem';
+    togglButton.style.cursor = 'pointer';
+    togglButton.className = 'inqByU';       // grey button, can be changed in next Ruddr builds
     togglButton.addEventListener('click', onTogglButtonClick);
-    togglButton.innerText = '◀ Toggl';
-    header.appendChild(togglButton);
+
+    const buttonP = document.createElement('p');
+    entryDetailsHeader.appendChild(buttonP);
+    buttonP.appendChild(togglButton);
 
     // const existDialog = document.querySelector('.modal-dialog');
     // if (existDialog) {
