@@ -15,23 +15,29 @@ const observer = new MutationObserver(mutations => {
 observer.observe(document.body, { childList: true });
 // TODO: Is it possible to observe not the entire body?
 
+function togglFindElementWithText(startElement, selector, text) {
+    const elements = startElement.querySelectorAll(selector);
+    for (const element of elements) {
+        if (element.innerText === text) {
+            return element;
+        }
+    }
+    return null;
+}
+
 function togglAddButton() {
     if (document.getElementById('toggl_button')) {
         return;
     }
 
-    // TODO: doesn't work if <div> is the last element, works if <div/><iframe/>
     const dialogDiv = document.querySelector('body > div:last-of-type');
     if (!dialogDiv) {
         return;
     }
 
-    const header = dialogDiv.querySelector('header h5');
+    const header = togglFindElementWithText(dialogDiv, 'header h5', 'New Entry');
     if (!header) {
-        return;
-    }
-    if (header.innerText !== 'New Entry') {
-        return; // not the New Entry dialogue
+        return;     // not the New Entry dialogue
     }
 
     const form = dialogDiv.querySelector('form');
@@ -213,17 +219,13 @@ function togglFillFormFromReport(item) {
         description.style['height'] = description.scrollHeight + 'px';
     }
 
-    // const customerId = item?.mapping?.customer;
-    // let promise;
-    // if (customerId) {
-    //     promise = togglClickSelect('timesheet_edit_form_customer', customerId);
-    // }
-    // const projectId = item?.mapping?.project;
-    // if (projectId) {
-    //     promise = promise?.then(() =>
-    //         togglClickSelect('timesheet_edit_form_project', projectId)
-    //     );
-    // }
+    const projectId = item?.mapping?.project;
+    let promise;
+    if (projectId) {
+        promise = togglChooseProject(projectId);
+    }
+    togglChooseProject(1);
+
     // const activityId = item?.mapping?.activity;
     // if (activityId) {
     //     promise = promise?.then(() =>
@@ -233,6 +235,28 @@ function togglFillFormFromReport(item) {
     // promise?.catch(err => console.warn(err));
 
     toggleRemoveReportPanel();
+}
+
+function togglChooseProject(projectId) {
+    const form = toggleFindForm();
+    if (!form) {
+        return;
+    }
+    const projectButton = togglFindElementWithText(form, 'div[role="button"]', 'Project');
+    if (projectButton) {
+        togglSimulateClick(projectButton);
+    }
+    // TODO
+    return Promise.resolve(true);
+}
+
+function togglSimulateClick(element) {
+    const event = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+    });
+    element.dispatchEvent(event);
 }
 
 function togglGetCustomerProjectActivity() {
