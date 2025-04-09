@@ -206,25 +206,22 @@ function togglFillFormFromReport(item) {
     const form = toggleFindForm();
     const duration = form?.querySelector('input[name="minutes"]');
     if (duration) {
-        duration.value = togglFormatDuration(moment.duration(item.seconds, 'seconds'));
-        // some magic to successfully dispatch the event to React
-        const event = new Event('input', { bubbles: true });
-        Object.defineProperty(event, 'target', { writable: false, value: duration });
-        duration.dispatchEvent(event);
+        toggleSetInputValue(duration, togglFormatDuration(moment.duration(item.seconds, 'seconds')));
     }
 
     const description = form?.querySelector('textarea[name="notes"]');
     if (description) {
-        description.value = item.description;
         description.style['height'] = description.scrollHeight + 'px';
+        toggleSetInputValue(description, item.description);
     }
 
-    const projectId = item?.mapping?.project;
-    let promise;
-    if (projectId) {
-        promise = togglChooseProject(projectId);
-    }
-    togglChooseProject(1);
+    // TODO
+    // const projectId = item?.mapping?.project;
+    // let promise;
+    // if (projectId) {
+    //     promise = togglChooseProject(projectId);
+    // }
+    // togglChooseProject(1);
 
     // const activityId = item?.mapping?.activity;
     // if (activityId) {
@@ -235,6 +232,14 @@ function togglFillFormFromReport(item) {
     // promise?.catch(err => console.warn(err));
 
     toggleRemoveReportPanel();
+}
+
+function toggleSetInputValue(target, value) {
+    target.value = value;
+    // some magic to successfully dispatch the event to React
+    const event = new Event('input', { bubbles: true });
+    Object.defineProperty(event, 'target', { writable: false, value: value });
+    target.dispatchEvent(event);
 }
 
 function togglChooseProject(projectId) {
