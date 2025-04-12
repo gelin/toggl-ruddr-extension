@@ -7,7 +7,9 @@ let togglSaveProjectMapping;
     togglSaveProjectMapping = togglModule.togglSaveProjectMapping;
 })();
 
-let togglLastProjectIdClicked;
+let togglLastProjectIdClicked = '_';
+let togglLastReportDate = '_';
+let togglClickedReportItems = new Set();
 
 const observer = new MutationObserver(mutations => {
     togglAddButton();
@@ -79,6 +81,7 @@ function onTogglButtonClick() {
         toggleRemoveReportPanel();
     } else {
         const date = togglGetReportDate();
+        togglLastReportDate = date;
         console.log(`Fetching Toggl report for date: ${date}`);
         togglFetchReport(date)
             .then(report => {
@@ -139,9 +142,13 @@ function togglAddReportPanel() {
     panel.style.fontWeight = '400';
 
     button.insertAdjacentElement('afterend', panel);
+
+    document.addEventListener('click', toggleRemoveReportPanel);
 }
 
 function toggleRemoveReportPanel() {
+    document.removeEventListener('click', toggleRemoveReportPanel);
+
     const panel = document.getElementById('toggl_report');
     if (panel) {
         panel.remove();
@@ -160,6 +167,9 @@ function togglUpdateReport(report) {
     }
 
     const items = report.map(item => {
+        const itemId = `${togglLastReportDate}_${item.project?.id}`;
+        const clicked = togglClickedReportItems.has(itemId);
+
         const time = moment.duration(item.seconds, 'seconds');
 
         const paragraph = document.createElement('article');
@@ -171,13 +181,13 @@ function togglUpdateReport(report) {
         header.innerText = togglFormatDuration(time) +
             ' • ' + (item.project?.name || 'Unknown Project') +
             ' • ' + (item.project?.client?.name || '');
-        header.style.color = item.color;
+        header.style.color = clicked ? 'lightgray' : item.color;
         header.style.fontWeight = '900';
         header.style.marginBottom = '0';
 
         const body = document.createElement('p');
         body.innerText = item.description;
-        body.style.color = 'black';
+        body.style.color = clicked ? 'lightgray' : 'black';
         paragraph.replaceChildren(header, body);
 
         return paragraph;
@@ -202,6 +212,8 @@ function togglUpdateReport(report) {
 
 function togglFillFormFromReport(item) {
     togglLastProjectIdClicked = item?.project?.id;
+    const itemId = `${togglLastReportDate}_${item?.project?.id}`;
+    togglClickedReportItems.add(itemId);
 
     const form = toggleFindForm();
     const duration = form?.querySelector('input[name="minutes"]');
