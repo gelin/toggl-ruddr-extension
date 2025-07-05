@@ -1,19 +1,19 @@
 <script lang="ts">
     import {onMount} from 'svelte';
     import {
+        getWorkspaceId,
         getApiToken,
-        testToken,
-        refreshWorkspaces,
         getWorkspaces,
+        refreshWorkspaces,
         saveSettings,
-    } from '../lib/toggl';
-    import type {
-        Workspace
+        testToken,
+        type Workspace,
+        type Settings,
     } from '../lib/toggl';
 
     let token = $state('');
     let workspaces: Workspace[] = $state([]);
-    let selectedWorkspace = '';
+    let selectedWorkspace = $state();
     let message = $state('');
     let loading = $state(true);
 
@@ -21,6 +21,7 @@
         try {
             token = await getApiToken() || '';
             workspaces = await getWorkspaces();
+            selectedWorkspace = await getWorkspaceId();
             loading = false;
         } catch (error) {
             console.error('Error loading settings:', error);
@@ -32,10 +33,9 @@
     async function onTokenChange() {
         message = 'Testing...';
         try {
-            const result = await testToken(token);
-            message = result;
-            const newWorkspaces = await refreshWorkspaces(token);
-            workspaces = newWorkspaces;
+            message = await testToken(token);
+            workspaces = await refreshWorkspaces(token);
+            selectedWorkspace = await getWorkspaceId();
         } catch (error: any) {
             console.error('Error testing token:', error);
             message = error.message;
@@ -47,7 +47,7 @@
             await saveSettings({
                 token,
                 workspace: selectedWorkspace
-            });
+            } as Settings);
             message = 'Settings saved successfully';
         } catch (error: any) {
             console.error('Error saving settings:', error);
@@ -56,41 +56,55 @@
     }
 </script>
 
-<main>
-    <h1>Toggl + Ruddr Settings</h1>
+<form>
+    <label for="toggl_token">Toggl Track API token</label>
+    <input
+            id="toggl_token"
+            type="text"
+            disabled={loading}
+            bind:value={token}
+            onchange={onTokenChange}
+    />
 
-    <form>
-        <label for="toggl_token">Toggl Track API token</label>
-        <input
-                id="toggl_token"
-                type="text"
-                disabled={loading}
-                value={token}
-                onchange={onTokenChange}
-        />
-
-        <label for="toggl_workspace">Toggl Workspace</label>
-        <select
+    <label for="toggl_workspace">Toggl Workspace</label>
+    <select
             id="toggl_workspace"
             disabled={loading || workspaces.length === 0}
-            >
-                {#each workspaces as workspace}
-                    <option value={workspace.id} selected={workspace.selected}>{workspace.name}</option>
-                {/each}
-        </select>
+            bind:value={selectedWorkspace}
+    >
+        {#each workspaces as workspace}
+            <option value={workspace.id} selected={workspace.selected}>{workspace.name}</option>
+        {/each}
+    </select>
 
-        <p class="message">{message}</p>
+    <p class="message">{message}</p>
 
-        <button
-                type="button"
-                disabled={loading || !token || !selectedWorkspace}
-                onclick={onSaveClick}
-        >
-            Refresh & Save
-        </button>
-    </form>
-</main>
+    <button
+            type="button"
+            disabled={loading || !token || !selectedWorkspace}
+            onclick={onSaveClick}
+    >
+        Refresh & Save
+    </button>
+</form>
 
 <style>
+    :global(body) {
+        font-family: sans-serif;
+        min-width: 200px;
+    }
 
+    :global(h1) {
+        font-size: 1.5em;
+    }
+
+    label {
+        display: block;
+        margin-top: 1em;
+    }
+
+    input, select {
+        display: block;
+        width: 100%;
+    }
 </style>

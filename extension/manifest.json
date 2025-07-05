@@ -20,22 +20,6 @@
     "default_popup": "popup.html",
     "default_icon": "img/icon-16.png"
   },
-  "background": {
-    "service_worker": "js/background.js",
-    "type": "module"
-  },
-  "content_scripts": [
-    {
-      "js": [
-        "js/moment.js",
-        "js/ruddr.js"
-      ],
-      "matches": [
-        "https://ruddr.io/app/*/time/*",
-        "https://www.ruddr.io/app/*/time/*"
-      ]
-    }
-  ],
   "web_accessible_resources": [
     {
       "resources": [

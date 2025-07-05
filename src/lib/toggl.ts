@@ -20,16 +20,21 @@ export async function getWorkspaceId(): Promise<string | null> {
         .catch(_ => null);
 }
 
+export type Settings = {
+    token: string;
+    workspace: string;
+}
+
 /**
  * Save Toggl settings to storage
  */
-export async function saveSettings(settings: { token: string, workspace: string }): Promise<void> {
+export async function saveSettings(settings: Settings): Promise<void> {
     return chrome.storage.sync.set({
         'toggl_api_token': settings.token,
         'toggl_workspace_id': settings.workspace
     })
-        .then(_ => togglRefreshClients(settings.token))
-        .then(_ => togglRefreshProjects(settings.token));
+        .then(_ => refreshClients(settings.token))
+        .then(_ => refreshProjects(settings.token));
 }
 
 /**
@@ -181,7 +186,7 @@ export type Project = {
 async function getProjectsMap(): Promise<Map<string, Project>> {
     const projects = await chrome.storage.local.get('toggl_projects')
         .then(o => o?.toggl_projects || []).catch(_ => []);
-    const clientsMap = await togglGetClientsMap();
+    const clientsMap = await getClientsMap();
     const idToProjectMap = projects.reduce((map: Map<string, Project>, project: Project) => {
         map.set(project.id, {
             id: project.id,
