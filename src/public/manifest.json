@@ -21,14 +21,13 @@
     "default_icon": "img/icon-16.png"
   },
   "background": {
-    "service_worker": "js/background.js",
+    "service_worker": "assets/background.js",
     "type": "module"
   },
   "content_scripts": [
     {
       "js": [
-        "js/moment.js",
-        "js/ruddr.js"
+        "assets/contentLoader.js"
       ],
       "matches": [
         "https://ruddr.io/app/*/time/*",
@@ -39,7 +38,7 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "js/toggl.js"
+        "assets/*"
       ],
       "matches": [
         "https://ruddr.io/*",
