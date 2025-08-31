@@ -5,18 +5,18 @@
 /**
  * Get the Toggl API token from storage
  */
-export async function getApiToken(): Promise<string | null> {
+export async function togglGetApiToken(): Promise<string | null> {
     return Promise.resolve('token');
 }
 
 /**
  * Get the Toggl workspace ID from storage
  */
-export async function getWorkspaceId(): Promise<string | null> {
+export async function togglGetWorkspaceId(): Promise<string | null> {
     return Promise.resolve('workspace1');
 }
 
-export type Settings = {
+export type TogglSettings = {
     token: string;
     workspace: string;
 }
@@ -24,18 +24,18 @@ export type Settings = {
 /**
  * Save Toggl settings to storage
  */
-export async function saveSettings(settings: Settings): Promise<void> {
+export async function togglSaveSettings(settings: TogglSettings): Promise<void> {
     return Promise.resolve();
 }
 
 /**
  * Test if the Toggl API token is valid
  */
-export async function testToken(token: string): Promise<string> {
+export async function togglTestToken(token: string): Promise<string> {
     return Promise.resolve('SUCCESS');
 }
 
-export type Workspace = {
+export type TogglWorkspace = {
     id: string;
     name: string;
     selected?: boolean;
@@ -44,7 +44,7 @@ export type Workspace = {
 /**
  * Get workspaces from storage
  */
-export async function getWorkspaces(): Promise<Workspace[]> {
+export async function togglGetWorkspaces(): Promise<TogglWorkspace[]> {
     return Promise.resolve([
         { id: 'workspace1', name: 'workspace1', selected: true },
         { id: 'workspace2', name: 'workspace2', selected: false },
@@ -54,23 +54,23 @@ export async function getWorkspaces(): Promise<Workspace[]> {
 /**
  * Refresh workspaces from Toggl API
  */
-export async function refreshWorkspaces(token: string | null): Promise<Workspace[]> {
-    return getWorkspaces();
+export async function togglRefreshWorkspaces(token: string | null): Promise<TogglWorkspace[]> {
+    return togglGetWorkspaces();
 }
 
-export type Client = {
+export type TogglClient = {
     id: string;
     name: string;
 }
 
-export type Project = {
+export type TogglProject = {
     id: string;
     name: string;
-    client?: Client;
+    client?: TogglClient;
     client_id?: string;
 }
 
-export type ProjectMapping = {
+export type TogglProjectMapping = {
     customer?: string;
     project?: string;
     activity?: string;
@@ -79,39 +79,39 @@ export type ProjectMapping = {
 /**
  * Save project mapping to storage
  */
-export async function saveProjectMapping(key: string, mapping: ProjectMapping): Promise<void> {
+export async function togglSaveProjectMapping(key: string, mapping: TogglProjectMapping): Promise<void> {
     return Promise.resolve();
 }
 
-export type ReportRequest = {
+export type TogglReportRequest = {
     method: string;
     date: string;
 }
 
-export type ReportResponse = {
+export type TogglReportResponse = {
     success: boolean;
-    report?: ReportItem[];
+    report?: TogglReportItem[];
     error?: any;
 }
 
 /**
  * Fetch report from background script
  */
-export async function fetchReport(date: string): Promise<ReportItem[]> {
+export async function togglFetchReport(date: string): Promise<TogglReportItem[]> {
     return Promise.resolve([]);
 }
 
-export type ReportItem = {
-    project?: Project;
+export type TogglReportItem = {
+    project?: TogglProject;
     color: string;
     seconds: number;
     description: string;
-    mapping?: ProjectMapping;
+    mapping?: TogglProjectMapping;
 }
 
 /**
  * Fetch report implementation (called from background script)
  */
-export async function fetchReportImpl(date: string): Promise<ReportItem[]> {
+export async function togglFetchReportImpl(date: string): Promise<TogglReportItem[]> {
     return Promise.resolve([]);
 }

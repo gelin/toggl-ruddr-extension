@@ -5,7 +5,7 @@
 /**
  * Get the Toggl API token from storage
  */
-export async function getApiToken(): Promise<string | null> {
+export async function togglGetApiToken(): Promise<string | null> {
     return chrome.storage.sync.get('toggl_api_token')
         .then(o => o?.toggl_api_token)
         .catch(_ => null);
@@ -14,13 +14,13 @@ export async function getApiToken(): Promise<string | null> {
 /**
  * Get the Toggl workspace ID from storage
  */
-export async function getWorkspaceId(): Promise<string | null> {
+export async function togglGetWorkspaceId(): Promise<string | null> {
     return chrome.storage.sync.get('toggl_workspace_id')
         .then(o => o?.toggl_workspace_id)
         .catch(_ => null);
 }
 
-export type Settings = {
+export type TogglSettings = {
     token: string;
     workspace: string;
 }
@@ -28,19 +28,19 @@ export type Settings = {
 /**
  * Save Toggl settings to storage
  */
-export async function saveSettings(settings: Settings): Promise<void> {
+export async function togglSaveSettings(settings: TogglSettings): Promise<void> {
     return chrome.storage.sync.set({
         'toggl_api_token': settings.token,
         'toggl_workspace_id': settings.workspace
     })
-        .then(_ => refreshClients(settings.token))
-        .then(_ => refreshProjects(settings.token));
+        .then(_ => togglRefreshClients(settings.token))
+        .then(_ => togglRefreshProjects(settings.token));
 }
 
 /**
  * Test if the Toggl API token is valid
  */
-export async function testToken(token: string): Promise<string> {
+export async function togglTestToken(token: string): Promise<string> {
     return fetch('https://api.track.toggl.com/api/v9/me/logged', {
         method: 'GET',
         headers: {
@@ -60,7 +60,7 @@ export async function testToken(token: string): Promise<string> {
         });
 }
 
-export type Workspace = {
+export type TogglWorkspace = {
     id: string;
     name: string;
     selected?: boolean;
@@ -69,11 +69,11 @@ export type Workspace = {
 /**
  * Get workspaces from storage
  */
-export async function getWorkspaces(): Promise<Workspace[]> {
-    const workspaceId = await getWorkspaceId();
+export async function togglGetWorkspaces(): Promise<TogglWorkspace[]> {
+    const workspaceId = await togglGetWorkspaceId();
     const workspaces = await chrome.storage.local.get('toggl_workspaces')
         .then(o => o?.toggl_workspaces || []).catch(_ => []);
-    return workspaces.map((workspace: Workspace) => {
+    return workspaces.map((workspace: TogglWorkspace) => {
         workspace.selected = workspace.id === workspaceId;
         return workspace;
     });
@@ -82,7 +82,7 @@ export async function getWorkspaces(): Promise<Workspace[]> {
 /**
  * Set workspaces in storage
  */
-async function setWorkspaces(workspaces: Workspace[]): Promise<void> {
+async function togglSetWorkspaces(workspaces: TogglWorkspace[]): Promise<void> {
     return chrome.storage.local.set({
         'toggl_workspaces': workspaces
     });
@@ -91,8 +91,8 @@ async function setWorkspaces(workspaces: Workspace[]): Promise<void> {
 /**
  * Refresh workspaces from Toggl API
  */
-export async function refreshWorkspaces(token: string | null): Promise<Workspace[]> {
-    const apiToken = token ?? await getApiToken();
+export async function togglRefreshWorkspaces(token: string | null): Promise<TogglWorkspace[]> {
+    const apiToken = token ?? await togglGetApiToken();
     return fetch("https://api.track.toggl.com/api/v9/me/workspaces", {
         method: "GET",
         headers: {
@@ -107,7 +107,7 @@ export async function refreshWorkspaces(token: string | null): Promise<Workspace
                     'name': value.name
                 };
             });
-            setWorkspaces(workspaces);
+            togglSetWorkspaces(workspaces);
             return workspaces;
         })
         .catch(err => {
@@ -116,7 +116,7 @@ export async function refreshWorkspaces(token: string | null): Promise<Workspace
         });
 }
 
-export type Client = {
+export type TogglClient = {
     id: string;
     name: string;
 }
@@ -124,10 +124,10 @@ export type Client = {
 /**
  * Get clients map from storage
  */
-async function getClientsMap(): Promise<Map<string, Client>> {
+async function togglGetClientsMap(): Promise<Map<string, TogglClient>> {
     const clients = await chrome.storage.local.get('toggl_clients')
         .then(o => o?.toggl_clients || []).catch(_ => []);
-    const idToClientMap = clients.reduce((map: Map<string, Client>, client: Client) => {
+    const idToClientMap = clients.reduce((map: Map<string, TogglClient>, client: TogglClient) => {
         map.set(client.id, {
             id: client.id,
             name: client.name
@@ -140,7 +140,7 @@ async function getClientsMap(): Promise<Map<string, Client>> {
 /**
  * Set clients in storage
  */
-function setClients(clients: Client[]): Promise<void> {
+function togglSetClients(clients: TogglClient[]): Promise<void> {
     return chrome.storage.local.set({
         'toggl_clients': clients
     });
@@ -149,8 +149,8 @@ function setClients(clients: Client[]): Promise<void> {
 /**
  * Refresh clients from Toggl API
  */
-async function refreshClients(token: string | null): Promise<void> {
-    const apiToken = token ?? await getApiToken();
+async function togglRefreshClients(token: string | null): Promise<void> {
+    const apiToken = token ?? await togglGetApiToken();
     return fetch("https://api.track.toggl.com/api/v9/me/clients", {
         method: "GET",
         headers: {
@@ -165,7 +165,7 @@ async function refreshClients(token: string | null): Promise<void> {
                     name: value.name
                 };
             });
-            return setClients(clients);
+            return togglSetClients(clients);
         })
         .catch(err => {
             console.log('Failed to fetch me/clients', err);
@@ -173,21 +173,21 @@ async function refreshClients(token: string | null): Promise<void> {
         });
 }
 
-export type Project = {
+export type TogglProject = {
     id: string;
     name: string;
-    client?: Client;
+    client?: TogglClient;
     client_id?: string;
 }
 
 /**
  * Get projects map from storage
  */
-async function getProjectsMap(): Promise<Map<string, Project>> {
+async function togglGetProjectsMap(): Promise<Map<string, TogglProject>> {
     const projects = await chrome.storage.local.get('toggl_projects')
         .then(o => o?.toggl_projects || []).catch(_ => []);
-    const clientsMap = await getClientsMap();
-    const idToProjectMap = projects.reduce((map: Map<string, Project>, project: Project) => {
+    const clientsMap = await togglGetClientsMap();
+    const idToProjectMap = projects.reduce((map: Map<string, TogglProject>, project: TogglProject) => {
         map.set(project.id, {
             id: project.id,
             name: project.name,
@@ -201,7 +201,7 @@ async function getProjectsMap(): Promise<Map<string, Project>> {
 /**
  * Set projects in storage
  */
-async function setProjects(projects: Project[]): Promise<void> {
+async function togglSetProjects(projects: TogglProject[]): Promise<void> {
     return chrome.storage.local.set({
         'toggl_projects': projects
     });
@@ -210,8 +210,8 @@ async function setProjects(projects: Project[]): Promise<void> {
 /**
  * Refresh projects from Toggl API
  */
-async function refreshProjects(token: string | null): Promise<void> {
-    const apiToken = token ?? await getApiToken();
+async function togglRefreshProjects(token: string | null): Promise<void> {
+    const apiToken = token ?? await togglGetApiToken();
     return fetch("https://api.track.toggl.com/api/v9/me/projects", {
         method: "GET",
         headers: {
@@ -227,7 +227,7 @@ async function refreshProjects(token: string | null): Promise<void> {
                     client_id: value.client_id
                 };
             });
-            return setProjects(projects);
+            return togglSetProjects(projects);
         })
         .catch(err => {
             console.log('Failed to fetch me/projects', err);
@@ -235,7 +235,7 @@ async function refreshProjects(token: string | null): Promise<void> {
         });
 }
 
-export type ProjectMapping = {
+export type TogglProjectMapping = {
     customer?: string;
     project?: string;
     activity?: string;
@@ -244,7 +244,7 @@ export type ProjectMapping = {
 /**
  * Save project mapping to storage
  */
-export async function saveProjectMapping(key: string, mapping: ProjectMapping): Promise<void> {
+export async function togglSaveProjectMapping(key: string, mapping: TogglProjectMapping): Promise<void> {
     console.log('Saving project mapping', key, mapping);
     return chrome.storage.sync.get('toggl_project_mappings')
         .then(o => {
@@ -259,33 +259,33 @@ export async function saveProjectMapping(key: string, mapping: ProjectMapping): 
 /**
  * Get project mappings from storage
  */
-async function getProjectMappings(): Promise<Record<string, ProjectMapping>> {
+async function togglGetProjectMappings(): Promise<Record<string, TogglProjectMapping>> {
     return chrome.storage.sync.get('toggl_project_mappings')
         .then(o => o?.toggl_project_mappings || {})
         .catch(_ => ({}));
 }
 
-export type ReportRequest = {
+export type TogglReportRequest = {
     method: string;
     date: string;
 }
 
-export type ReportResponse = {
+export type TogglReportResponse = {
     success: boolean;
-    report?: ReportItem[];
+    report?: TogglReportItem[];
     error?: any;
 }
 
 /**
  * Fetch report from background script
  */
-export async function fetchReport(date: string): Promise<ReportItem[]> {
-    const message: ReportRequest = {
+export async function togglFetchReport(date: string): Promise<TogglReportItem[]> {
+    const message: TogglReportRequest = {
         method: 'togglFetchReport',
         date: date
     };
     return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(message, (response: ReportResponse) => {
+        chrome.runtime.sendMessage(message, (response: TogglReportResponse) => {
             if (response.success) {
                 resolve(response.report!);
             } else {
@@ -295,20 +295,20 @@ export async function fetchReport(date: string): Promise<ReportItem[]> {
     });
 }
 
-export type ReportItem = {
-    project?: Project;
+export type TogglReportItem = {
+    project?: TogglProject;
     color: string;
     seconds: number;
     description: string;
-    mapping?: ProjectMapping;
+    mapping?: TogglProjectMapping;
 }
 
 /**
  * Fetch report implementation (called from background script)
  */
-export async function fetchReportImpl(date: string): Promise<ReportItem[]> {
-    const apiToken = await getApiToken();
-    const workspaceId = await getWorkspaceId();
+export async function togglFetchReportImpl(date: string): Promise<TogglReportItem[]> {
+    const apiToken = await togglGetApiToken();
+    const workspaceId = await togglGetWorkspaceId();
     console.log(`Fetching report for date=${date} in workspace=${workspaceId}`);
     return fetch(`https://api.track.toggl.com/reports/api/v3/workspace/${workspaceId}/summary/time_entries`, {
         method: 'POST',
@@ -324,7 +324,7 @@ export async function fetchReportImpl(date: string): Promise<ReportItem[]> {
         })
     })
         .then((resp) => resp.json())
-        .then((json) => convertReport(json))
+        .then((json) => togglConvertReport(json))
         .catch(err => {
             console.warn('Failed to fetch summary/time_entries', err);
             throw err;
@@ -334,10 +334,10 @@ export async function fetchReportImpl(date: string): Promise<ReportItem[]> {
 /**
  * Convert report from Toggl API format to our format
  */
-async function convertReport(json: any): Promise<ReportItem[]> {
-    const projectsMap = await getProjectsMap();
-    const projectMappings = await getProjectMappings();
-    const items: ReportItem[] = [];
+async function togglConvertReport(json: any): Promise<TogglReportItem[]> {
+    const projectsMap = await togglGetProjectsMap();
+    const projectMappings = await togglGetProjectMappings();
+    const items: TogglReportItem[] = [];
     json?.groups?.forEach((group: any) => {
         const projectId = group.id;
         const descriptionLines: string[] = [];
@@ -352,7 +352,7 @@ async function convertReport(json: any): Promise<ReportItem[]> {
             items.push({
                 project: projectsMap.get(projectId),
                 color: color,
-                seconds: roundSeconds(seconds),
+                seconds: togglRoundSeconds(seconds),
                 description: descriptionLines.join('\n'),
                 mapping: projectMappings[projectId]
             });
@@ -364,7 +364,7 @@ async function convertReport(json: any): Promise<ReportItem[]> {
 /**
  * Round seconds to 15-minute intervals
  */
-function roundSeconds(seconds: number): number {
+function togglRoundSeconds(seconds: number): number {
     const fifteenMinutes = 15 * 60;
     const quarters = Math.ceil(seconds / fifteenMinutes);
     return quarters * fifteenMinutes;

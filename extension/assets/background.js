@@ -1,1 +1,1 @@
-import{f as c}from"./toggl.js";chrome.runtime.onMessage.addListener((t,o,r)=>(t.method==="togglFetchReport"&&c(t.date).then(e=>{r({success:!0,report:e})}).catch(e=>{console.warn("BACKGROUND",e),r({success:!1,error:e})}),!0));
+import{f as o}from"./toggl.js";chrome.runtime.onMessage.addListener((t,c,r)=>(t.method==="togglFetchReport"&&o(t.date).then(e=>{r({success:!0,report:e})}).catch(e=>{console.warn("BACKGROUND",e),r({success:!1,error:e})}),!0));

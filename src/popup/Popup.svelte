@@ -1,27 +1,27 @@
 <script lang="ts">
     import {onMount} from 'svelte';
     import {
-        getWorkspaceId,
-        getApiToken,
-        getWorkspaces,
-        refreshWorkspaces,
-        saveSettings,
-        testToken,
-        type Workspace,
-        type Settings,
+        togglGetWorkspaceId,
+        togglGetApiToken,
+        togglGetWorkspaces,
+        togglRefreshWorkspaces,
+        togglSaveSettings,
+        togglTestToken,
+        type TogglWorkspace,
+        type TogglSettings,
     } from '../lib/toggl';
 
     let token = $state('');
-    let workspaces: Workspace[] = $state([]);
+    let workspaces: TogglWorkspace[] = $state([]);
     let selectedWorkspace = $state();
     let message = $state('');
     let loading = $state(true);
 
     onMount(async () => {
         try {
-            token = await getApiToken() || '';
-            workspaces = await getWorkspaces();
-            selectedWorkspace = await getWorkspaceId();
+            token = await togglGetApiToken() || '';
+            workspaces = await togglGetWorkspaces();
+            selectedWorkspace = await togglGetWorkspaceId();
             loading = false;
         } catch (error) {
             console.error('Error loading settings:', error);
@@ -33,9 +33,9 @@
     async function onTokenChange() {
         message = 'Testing...';
         try {
-            message = await testToken(token);
-            workspaces = await refreshWorkspaces(token);
-            selectedWorkspace = await getWorkspaceId();
+            message = await togglTestToken(token);
+            workspaces = await togglRefreshWorkspaces(token);
+            selectedWorkspace = await togglGetWorkspaceId();
         } catch (error: any) {
             console.error('Error testing token:', error);
             message = error.message;
@@ -44,10 +44,10 @@
 
     async function onSaveClick() {
         try {
-            await saveSettings({
+            await togglSaveSettings({
                 token,
                 workspace: selectedWorkspace
-            } as Settings);
+            } as TogglSettings);
             message = 'Settings saved successfully';
         } catch (error: any) {
             console.error('Error saving settings:', error);
