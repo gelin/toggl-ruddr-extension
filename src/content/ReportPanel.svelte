@@ -47,12 +47,12 @@
                          onItemClick(item);
                      }
                  }}>
-                <h4 style="color: {isClicked ? 'lightgray' : item.color}">
+                <h4 style="color: {item.color}">
                     {formatDuration(item.seconds)} •
                     {item.project?.name || 'Unknown Project'} •
                     {item.project?.client?.name || ''}
                 </h4>
-                <p style="color: {isClicked ? 'lightgray' : 'black'}">
+                <p>
                     {item.description}
                 </p>
             </div>
@@ -89,6 +89,11 @@
     h4 {
         font-weight: 900;
         margin-bottom: 0;
+    }
+
+    p {
+        color: black;
+        white-space: pre-line;
     }
 
     .total {

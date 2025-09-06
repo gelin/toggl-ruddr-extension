@@ -108,19 +108,19 @@ function set_style(dom, value, prev_styles, next_styles) {
   }
   return next_styles;
 }
-var root_1 = from_html(`<p>[No time tracked in Toggl]</p>`);
+var root_1 = from_html(`<p class="svelte-16ibe5i">[No time tracked in Toggl]</p>`);
 var on_click = (_, onItemClick, item) => onItemClick(get(item));
 var on_keydown = (event, onItemClick, item) => {
   if (event.key === "Enter") {
     onItemClick(get(item));
   }
 };
-var root_3 = from_html(`<div role="button"><h4 class="svelte-1b6lxs"> </h4> <p class="svelte-1b6lxs"> </p></div>`);
-var root_2 = from_html(`<!> <h3 class="total svelte-1b6lxs"> </h3>`, 1);
-var root$1 = from_html(`<div id="toggl_report" class="report-panel svelte-1b6lxs"><!></div>`);
+var root_3 = from_html(`<div role="button"><h4 class="svelte-16ibe5i"> </h4> <p class="svelte-16ibe5i"> </p></div>`);
+var root_2 = from_html(`<!> <h3 class="total svelte-16ibe5i"> </h3>`, 1);
+var root$1 = from_html(`<div id="toggl_report" class="report-panel svelte-16ibe5i"><!></div>`);
 const $$css$1 = {
-  hash: "svelte-1b6lxs",
-  code: ".report-panel.svelte-1b6lxs {position:relative;top:0;left:0;width:360px;z-index:100;padding:1rem;background:white;border:1px solid gray;border-radius:3px;text-transform:none;font-family:Roboto, sans-serif;font-size:0.875rem;font-weight:400;}.report-item.svelte-1b6lxs {cursor:pointer;margin:0.5rem;}h4.svelte-1b6lxs {font-weight:900;margin-bottom:0;}.total.svelte-1b6lxs {margin:0.5rem;font-weight:900;}.clicked.svelte-1b6lxs h4:where(.svelte-1b6lxs), .clicked.svelte-1b6lxs p:where(.svelte-1b6lxs) {color:lightgray;}"
+  hash: "svelte-16ibe5i",
+  code: ".report-panel.svelte-16ibe5i {position:relative;top:0;left:0;width:360px;z-index:100;padding:1rem;background:white;border:1px solid gray;border-radius:3px;text-transform:none;font-family:Roboto, sans-serif;font-size:0.875rem;font-weight:400;}.report-item.svelte-16ibe5i {cursor:pointer;margin:0.5rem;}h4.svelte-16ibe5i {font-weight:900;margin-bottom:0;}p.svelte-16ibe5i {color:black;white-space:pre-line;}.total.svelte-16ibe5i {margin:0.5rem;font-weight:900;}.clicked.svelte-16ibe5i h4:where(.svelte-16ibe5i), .clicked.svelte-16ibe5i p:where(.svelte-16ibe5i) {color:lightgray;}"
 };
 function ReportPanel($$anchor, $$props) {
   push($$props, true);
@@ -162,12 +162,11 @@ function ReportPanel($$anchor, $$props) {
         template_effect(
           ($0, $1) => {
             var _a, _b, _c;
-            classes = set_class(div_1, 1, "report-item svelte-1b6lxs", null, classes, $0);
-            set_style(h4, `color: ${(get(isClicked) ? "lightgray" : get(item).color) ?? ""}`);
+            classes = set_class(div_1, 1, "report-item svelte-16ibe5i", null, classes, $0);
+            set_style(h4, `color: ${get(item).color ?? ""}`);
             set_text(text, `${$1 ?? ""} •
                     ${((_a = get(item).project) == null ? void 0 : _a.name) || "Unknown Project"} •
                     ${(((_c = (_b = get(item).project) == null ? void 0 : _b.client) == null ? void 0 : _c.name) || "") ?? ""}`);
-            set_style(p_1, `color: ${get(isClicked) ? "lightgray" : "black"}`);
             set_text(text_1, get(item).description);
           },
           [
