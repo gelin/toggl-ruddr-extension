@@ -1,1 +1,596 @@
-import{s as R,a as W,b as ne,c as O,d as q,l as ae,u as le,e as K,f as se,g as ie,h as v,i as oe,r as U,j as z,p as ue,I as C,k as J,m as fe,n as ce,o as G,E as ve,q as de,t as _e,v as ge,w as pe,x as he,y as me,z as ye,A as Q,B as be,C as Ee,D as ke,F as we,G as xe,H as Te,J as Ae,K as w,L as Se,M as X,N as A,O as H,P as B,Q as Ie,R as h,S as L,T as F,U as qe}from"./render.js";import{t as Ce,a as Le,b as Y,c as Me,d as Pe,e as Oe}from"./toggl.js";(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const n of document.querySelectorAll('link[rel="modulepreload"]'))l(n);new MutationObserver(n=>{for(const a of n)if(a.type==="childList")for(const i of a.addedNodes)i.tagName==="LINK"&&i.rel==="modulepreload"&&l(i)}).observe(document,{childList:!0,subtree:!0});function r(n){const a={};return n.integrity&&(a.integrity=n.integrity),n.referrerPolicy&&(a.referrerPolicy=n.referrerPolicy),n.crossOrigin==="use-credentials"?a.credentials="include":n.crossOrigin==="anonymous"?a.credentials="omit":a.credentials="same-origin",a}function l(n){if(n.ep)return;n.ep=!0;const a=r(n);fetch(n.href,a)}})();function Ne(e){throw new Error("https://svelte.dev/e/lifecycle_outside_component")}function Re(){console.warn("https://svelte.dev/e/select_multiple_invalid_value")}let We=!1,V=!1;function Ge(){V||(V=!0,document.addEventListener("reset",e=>{Promise.resolve().then(()=>{var t;if(!e.defaultPrevented)for(const r of e.target.elements)(t=r.__on_r)==null||t.call(r)})},{capture:!0}))}function He(e){var t=ne,r=O;R(null),W(null);try{return e()}finally{R(t),W(r)}}function Z(e,t,r,l=r){e.addEventListener(t,()=>He(r));const n=e.__on_r;n?e.__on_r=()=>{n(),l(!0)}:e.__on_r=()=>l(!0),Ge()}function Be(e){q===null&&Ne(),ae&&q.l!==null?Fe(q).m.push(e):le(()=>{const t=K(e);if(typeof t=="function")return t})}function Fe(e){var t=e.l;return t.u??(t.u={a:[],b:[],m:[]})}function Ve(e,t){return t}function De(e,t,r,l){for(var n=[],a=t.length,i=0;i<a;i++)de(t[i].e,n,!0);var d=a>0&&n.length===0&&r!==null;if(d){var g=r.parentNode;_e(g),g.append(r),l.clear(),E(e,t[0].prev,t[a-1].next)}ge(n,()=>{for(var _=0;_<a;_++){var s=t[_];d||(l.delete(s.k),E(e,s.prev,s.next)),pe(s.e,!d)}})}function Ke(e,t,r,l,n,a=null){var i=e,d={flags:t,items:new Map,first:null};{var g=e;i=g.appendChild(se())}var _=null,s=!1,p=oe(()=>{var o=r();return Q(o)?o:o==null?[]:J(o)});ie(()=>{var o=v(p),u=o.length;s&&u===0||(s=u===0,Ue(o,d,i,n,t,l,r),a!==null&&(u===0?_?U(_):_=z(()=>a(i)):_!==null&&ue(_,()=>{_=null})),v(p))})}function Ue(e,t,r,l,n,a,i){var d=e.length,g=t.items,_=t.first,s=_,p,o=null,u=[],f=[],m,k,c,y;for(y=0;y<d;y+=1){if(m=e[y],k=a(m,y),c=g.get(k),c===void 0){var ee=s?s.e.nodes_start:r;o=Je(ee,t,o,o===null?t.first:o.next,m,k,y,l,n,i),g.set(k,o),u=[],f=[],s=o.next;continue}if(ze(c,m,y),(c.e.f&C)!==0&&U(c.e),c!==s){if(p!==void 0&&p.has(c)){if(u.length<f.length){var T=f[0],b;o=T.prev;var N=u[0],S=u[u.length-1];for(b=0;b<u.length;b+=1)D(u[b],T,r);for(b=0;b<f.length;b+=1)p.delete(f[b]);E(t,N.prev,S.next),E(t,o,N),E(t,S,T),s=T,o=S,y-=1,u=[],f=[]}else p.delete(c),D(c,s,r),E(t,c.prev,c.next),E(t,c,o===null?t.first:o.next),E(t,o,c),o=c;continue}for(u=[],f=[];s!==null&&s.k!==k;)(s.e.f&C)===0&&(p??(p=new Set)).add(s),f.push(s),s=s.next;if(s===null)continue;c=s}u.push(c),o=c,s=c.next}if(s!==null||p!==void 0){for(var I=p===void 0?[]:J(p);s!==null;)(s.e.f&C)===0&&I.push(s),s=s.next;var te=I.length;if(te>0){var re=d===0?r:null;De(t,I,re,g)}}O.first=t.first&&t.first.e,O.last=o&&o.e}function ze(e,t,r,l){fe(e.v,t),e.i=r}function Je(e,t,r,l,n,a,i,d,g,_){var s=(g&me)!==0,p=(g&ye)===0,o=s?p?ce(n,!1,!1):G(n):n,u=(g&ve)===0?i:G(i),f={i:u,v:o,k:a,a:null,e:null,prev:r,next:l};try{return f.e=z(()=>d(e,o,u,_),We),f.e.prev=r&&r.e,f.e.next=l&&l.e,r===null?t.first=f:(r.next=f,r.e.next=f.e),l!==null&&(l.prev=f,l.e.prev=f.e),f}finally{}}function D(e,t,r){for(var l=e.next?e.next.e.nodes_start:r,n=t?t.e.nodes_start:r,a=e.e.nodes_start;a!==l;){var i=he(a);n.before(a),a=i}}function E(e,t,r){t===null?e.first=r:(t.next=r,t.e.next=r&&r.e),r!==null&&(r.prev=t,r.e.prev=t&&t.e)}function $(e,t,r){if(e.multiple){if(t==null)return;if(!Q(t))return Re();for(var l of e.options)l.selected=t.includes(x(l));return}for(l of e.options){var n=x(l);if(ke(n,t)){l.selected=!0;return}}(!r||t!==void 0)&&(e.selectedIndex=-1)}function Qe(e){var t=new MutationObserver(()=>{$(e,e.__value)});t.observe(e,{childList:!0,subtree:!0,attributes:!0,attributeFilter:["value"]}),Ee(()=>{t.disconnect()})}function Xe(e,t,r=t){var l=!0;Z(e,"change",n=>{var a=n?"[selected]":":checked",i;if(e.multiple)i=[].map.call(e.querySelectorAll(a),x);else{var d=e.querySelector(a)??e.querySelector("option:not([disabled])");i=d&&x(d)}r(i)}),be(()=>{var n=t();if($(e,n,l),l&&n===void 0){var a=e.querySelector(":checked");a!==null&&(n=x(a),r(n))}e.__value=n,l=!1}),Qe(e)}function x(e){return"__value"in e?e.__value:e.value}function Ye(e,t){t?e.hasAttribute("selected")||e.setAttribute("selected",""):e.removeAttribute("selected")}function Ze(e,t,r=t){var l=we();Z(e,"input",n=>{var a=n?e.defaultValue:e.value;if(a=M(e)?P(a):a,r(a),l&&a!==(a=t())){var i=e.selectionStart,d=e.selectionEnd;e.value=a??"",d!==null&&(e.selectionStart=i,e.selectionEnd=Math.min(d,e.value.length))}}),K(t)==null&&e.value&&r(M(e)?P(e.value):e.value),xe(()=>{var n=t();M(e)&&n===P(e.value)||e.type==="date"&&!n&&!e.value||n!==e.value&&(e.value=n??"")})}function M(e){var t=e.type;return t==="number"||t==="range"}function P(e){return e===""?null:+e}async function $e(e,t,r,l,n){h(t,"Testing...");try{h(t,await Ce(v(r)),!0),h(l,await Le(v(r)),!0),h(n,await Y(),!0)}catch(a){console.error("Error testing token:",a),h(t,a.message,!0)}}async function je(e,t,r,l){try{await Me({token:v(t),workspace:v(r)}),h(l,"Settings saved successfully")}catch(n){console.error("Error saving settings:",n),h(l,"Error saving settings: "+n.message)}}var et=X("<option> </option>"),tt=X('<form><label for="toggl_token" class="svelte-1tqcnsd">Toggl Track API token</label> <input id="toggl_token" type="text" class="svelte-1tqcnsd"/> <label for="toggl_workspace" class="svelte-1tqcnsd">Toggl Workspace</label> <select id="toggl_workspace" class="svelte-1tqcnsd"></select> <p class="message"> </p> <button type="button">Refresh & Save</button></form>');function rt(e,t){Ae(t,!0);let r=w(""),l=w(Se([])),n=w(void 0),a=w(""),i=w(!0);Be(async()=>{try{h(r,await Pe()||"",!0),h(l,await Oe(),!0),h(n,await Y(),!0),h(i,!1)}catch(u){console.error("Error loading settings:",u),h(a,"Error loading settings"),h(i,!1)}});var d=tt(),g=A(L(d),2);g.__change=[$e,a,r,l,n];var _=A(g,4);Ke(_,21,()=>v(l),Ve,(u,f)=>{var m=et(),k=L(m),c={};H(()=>{Ye(m,v(f).selected),F(k,v(f).name),c!==(c=v(f).id)&&(m.value=(m.__value=v(f).id)??"")}),B(u,m)});var s=A(_,2),p=L(s),o=A(s,2);o.__click=[je,r,n,a],H(()=>{g.disabled=v(i),_.disabled=v(i)||v(l).length===0,F(p,v(a)),o.disabled=v(i)||!v(r)||!v(n)}),Ze(g,()=>v(r),u=>h(r,u)),Xe(_,()=>v(n),u=>h(n,u)),B(e,d),Ie()}Te(["change","click"]);const j=document.getElementById("popup");if(!j)throw new Error("Could not find popup container");qe(rt,{target:j});
+import { s as set_active_reaction, a as set_active_effect, b as active_reaction, c as active_effect, d as component_context, u as user_effect, e as untrack, f as create_text, g as block, h as get, i as derived_safe_equal, r as resume_effect, j as branch, p as pause_effect, I as INERT, k as array_from, l as internal_set, m as mutable_source, n as source, E as EACH_INDEX_REACTIVE, o as pause_children, q as clear_text_content, t as run_out_transitions, v as destroy_effect, w as get_next_sibling, x as EACH_ITEM_REACTIVE, y as EACH_ITEM_IMMUTABLE, z as is_array, A as effect, B as teardown, C as is, D as render_effect, F as delegate, G as push, H as append_styles, J as state, K as proxy, L as from_html, M as sibling, N as template_effect, O as append, P as pop, Q as set, R as child, S as set_text, T as mount } from "./css.js";
+import { t as togglTestToken, a as togglRefreshWorkspaces, b as togglGetWorkspaceId, c as togglSaveSettings, d as togglGetApiToken, e as togglGetWorkspaces } from "./toggl.js";
+(function polyfill() {
+  const relList = document.createElement("link").relList;
+  if (relList && relList.supports && relList.supports("modulepreload")) {
+    return;
+  }
+  for (const link2 of document.querySelectorAll('link[rel="modulepreload"]')) {
+    processPreload(link2);
+  }
+  new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type !== "childList") {
+        continue;
+      }
+      for (const node of mutation.addedNodes) {
+        if (node.tagName === "LINK" && node.rel === "modulepreload")
+          processPreload(node);
+      }
+    }
+  }).observe(document, { childList: true, subtree: true });
+  function getFetchOpts(link2) {
+    const fetchOpts = {};
+    if (link2.integrity) fetchOpts.integrity = link2.integrity;
+    if (link2.referrerPolicy) fetchOpts.referrerPolicy = link2.referrerPolicy;
+    if (link2.crossOrigin === "use-credentials")
+      fetchOpts.credentials = "include";
+    else if (link2.crossOrigin === "anonymous") fetchOpts.credentials = "omit";
+    else fetchOpts.credentials = "same-origin";
+    return fetchOpts;
+  }
+  function processPreload(link2) {
+    if (link2.ep)
+      return;
+    link2.ep = true;
+    const fetchOpts = getFetchOpts(link2);
+    fetch(link2.href, fetchOpts);
+  }
+})();
+function lifecycle_outside_component(name) {
+  {
+    throw new Error(`https://svelte.dev/e/lifecycle_outside_component`);
+  }
+}
+function select_multiple_invalid_value() {
+  {
+    console.warn(`https://svelte.dev/e/select_multiple_invalid_value`);
+  }
+}
+let hydrating = false;
+let listening_to_form_reset = false;
+function add_form_reset_listener() {
+  if (!listening_to_form_reset) {
+    listening_to_form_reset = true;
+    document.addEventListener(
+      "reset",
+      (evt) => {
+        Promise.resolve().then(() => {
+          var _a;
+          if (!evt.defaultPrevented) {
+            for (
+              const e of
+              /**@type {HTMLFormElement} */
+              evt.target.elements
+            ) {
+              (_a = e.__on_r) == null ? void 0 : _a.call(e);
+            }
+          }
+        });
+      },
+      // In the capture phase to guarantee we get noticed of it (no possiblity of stopPropagation)
+      { capture: true }
+    );
+  }
+}
+function without_reactive_context(fn) {
+  var previous_reaction = active_reaction;
+  var previous_effect = active_effect;
+  set_active_reaction(null);
+  set_active_effect(null);
+  try {
+    return fn();
+  } finally {
+    set_active_reaction(previous_reaction);
+    set_active_effect(previous_effect);
+  }
+}
+function listen_to_event_and_reset_event(element, event, handler, on_reset = handler) {
+  element.addEventListener(event, () => without_reactive_context(handler));
+  const prev = element.__on_r;
+  if (prev) {
+    element.__on_r = () => {
+      prev();
+      on_reset(true);
+    };
+  } else {
+    element.__on_r = () => on_reset(true);
+  }
+  add_form_reset_listener();
+}
+function onMount(fn) {
+  if (component_context === null) {
+    lifecycle_outside_component();
+  }
+  {
+    user_effect(() => {
+      const cleanup = untrack(fn);
+      if (typeof cleanup === "function") return (
+        /** @type {() => void} */
+        cleanup
+      );
+    });
+  }
+}
+function index(_, i) {
+  return i;
+}
+function pause_effects(state2, items, controlled_anchor, items_map) {
+  var transitions = [];
+  var length = items.length;
+  for (var i = 0; i < length; i++) {
+    pause_children(items[i].e, transitions, true);
+  }
+  var is_controlled = length > 0 && transitions.length === 0 && controlled_anchor !== null;
+  if (is_controlled) {
+    var parent_node = (
+      /** @type {Element} */
+      /** @type {Element} */
+      controlled_anchor.parentNode
+    );
+    clear_text_content(parent_node);
+    parent_node.append(
+      /** @type {Element} */
+      controlled_anchor
+    );
+    items_map.clear();
+    link(state2, items[0].prev, items[length - 1].next);
+  }
+  run_out_transitions(transitions, () => {
+    for (var i2 = 0; i2 < length; i2++) {
+      var item = items[i2];
+      if (!is_controlled) {
+        items_map.delete(item.k);
+        link(state2, item.prev, item.next);
+      }
+      destroy_effect(item.e, !is_controlled);
+    }
+  });
+}
+function each(node, flags, get_collection, get_key, render_fn, fallback_fn = null) {
+  var anchor = node;
+  var state2 = { flags, items: /* @__PURE__ */ new Map(), first: null };
+  {
+    var parent_node = (
+      /** @type {Element} */
+      node
+    );
+    anchor = parent_node.appendChild(create_text());
+  }
+  var fallback = null;
+  var was_empty = false;
+  var each_array = derived_safe_equal(() => {
+    var collection = get_collection();
+    return is_array(collection) ? collection : collection == null ? [] : array_from(collection);
+  });
+  block(() => {
+    var array = get(each_array);
+    var length = array.length;
+    if (was_empty && length === 0) {
+      return;
+    }
+    was_empty = length === 0;
+    {
+      reconcile(array, state2, anchor, render_fn, flags, get_key, get_collection);
+    }
+    if (fallback_fn !== null) {
+      if (length === 0) {
+        if (fallback) {
+          resume_effect(fallback);
+        } else {
+          fallback = branch(() => fallback_fn(anchor));
+        }
+      } else if (fallback !== null) {
+        pause_effect(fallback, () => {
+          fallback = null;
+        });
+      }
+    }
+    get(each_array);
+  });
+}
+function reconcile(array, state2, anchor, render_fn, flags, get_key, get_collection) {
+  var length = array.length;
+  var items = state2.items;
+  var first = state2.first;
+  var current = first;
+  var seen;
+  var prev = null;
+  var matched = [];
+  var stashed = [];
+  var value;
+  var key;
+  var item;
+  var i;
+  for (i = 0; i < length; i += 1) {
+    value = array[i];
+    key = get_key(value, i);
+    item = items.get(key);
+    if (item === void 0) {
+      var child_anchor = current ? (
+        /** @type {TemplateNode} */
+        current.e.nodes_start
+      ) : anchor;
+      prev = create_item(
+        child_anchor,
+        state2,
+        prev,
+        prev === null ? state2.first : prev.next,
+        value,
+        key,
+        i,
+        render_fn,
+        flags,
+        get_collection
+      );
+      items.set(key, prev);
+      matched = [];
+      stashed = [];
+      current = prev.next;
+      continue;
+    }
+    {
+      update_item(item, value, i);
+    }
+    if ((item.e.f & INERT) !== 0) {
+      resume_effect(item.e);
+    }
+    if (item !== current) {
+      if (seen !== void 0 && seen.has(item)) {
+        if (matched.length < stashed.length) {
+          var start = stashed[0];
+          var j;
+          prev = start.prev;
+          var a = matched[0];
+          var b = matched[matched.length - 1];
+          for (j = 0; j < matched.length; j += 1) {
+            move(matched[j], start, anchor);
+          }
+          for (j = 0; j < stashed.length; j += 1) {
+            seen.delete(stashed[j]);
+          }
+          link(state2, a.prev, b.next);
+          link(state2, prev, a);
+          link(state2, b, start);
+          current = start;
+          prev = b;
+          i -= 1;
+          matched = [];
+          stashed = [];
+        } else {
+          seen.delete(item);
+          move(item, current, anchor);
+          link(state2, item.prev, item.next);
+          link(state2, item, prev === null ? state2.first : prev.next);
+          link(state2, prev, item);
+          prev = item;
+        }
+        continue;
+      }
+      matched = [];
+      stashed = [];
+      while (current !== null && current.k !== key) {
+        if ((current.e.f & INERT) === 0) {
+          (seen ?? (seen = /* @__PURE__ */ new Set())).add(current);
+        }
+        stashed.push(current);
+        current = current.next;
+      }
+      if (current === null) {
+        continue;
+      }
+      item = current;
+    }
+    matched.push(item);
+    prev = item;
+    current = item.next;
+  }
+  if (current !== null || seen !== void 0) {
+    var to_destroy = seen === void 0 ? [] : array_from(seen);
+    while (current !== null) {
+      if ((current.e.f & INERT) === 0) {
+        to_destroy.push(current);
+      }
+      current = current.next;
+    }
+    var destroy_length = to_destroy.length;
+    if (destroy_length > 0) {
+      var controlled_anchor = length === 0 ? anchor : null;
+      pause_effects(state2, to_destroy, controlled_anchor, items);
+    }
+  }
+  active_effect.first = state2.first && state2.first.e;
+  active_effect.last = prev && prev.e;
+}
+function update_item(item, value, index2, type) {
+  {
+    internal_set(item.v, value);
+  }
+  {
+    item.i = index2;
+  }
+}
+function create_item(anchor, state2, prev, next, value, key, index2, render_fn, flags, get_collection) {
+  var reactive = (flags & EACH_ITEM_REACTIVE) !== 0;
+  var mutable = (flags & EACH_ITEM_IMMUTABLE) === 0;
+  var v = reactive ? mutable ? mutable_source(value, false, false) : source(value) : value;
+  var i = (flags & EACH_INDEX_REACTIVE) === 0 ? index2 : source(index2);
+  var item = {
+    i,
+    v,
+    k: key,
+    a: null,
+    // @ts-expect-error
+    e: null,
+    prev,
+    next
+  };
+  try {
+    item.e = branch(() => render_fn(anchor, v, i, get_collection), hydrating);
+    item.e.prev = prev && prev.e;
+    item.e.next = next && next.e;
+    if (prev === null) {
+      state2.first = item;
+    } else {
+      prev.next = item;
+      prev.e.next = item.e;
+    }
+    if (next !== null) {
+      next.prev = item;
+      next.e.prev = item.e;
+    }
+    return item;
+  } finally {
+  }
+}
+function move(item, next, anchor) {
+  var end = item.next ? (
+    /** @type {TemplateNode} */
+    item.next.e.nodes_start
+  ) : anchor;
+  var dest = next ? (
+    /** @type {TemplateNode} */
+    next.e.nodes_start
+  ) : anchor;
+  var node = (
+    /** @type {TemplateNode} */
+    item.e.nodes_start
+  );
+  while (node !== end) {
+    var next_node = (
+      /** @type {TemplateNode} */
+      get_next_sibling(node)
+    );
+    dest.before(node);
+    node = next_node;
+  }
+}
+function link(state2, prev, next) {
+  if (prev === null) {
+    state2.first = next;
+  } else {
+    prev.next = next;
+    prev.e.next = next && next.e;
+  }
+  if (next !== null) {
+    next.prev = prev;
+    next.e.prev = prev && prev.e;
+  }
+}
+function select_option(select, value, mounting) {
+  if (select.multiple) {
+    if (value == void 0) {
+      return;
+    }
+    if (!is_array(value)) {
+      return select_multiple_invalid_value();
+    }
+    for (var option of select.options) {
+      option.selected = value.includes(get_option_value(option));
+    }
+    return;
+  }
+  for (option of select.options) {
+    var option_value = get_option_value(option);
+    if (is(option_value, value)) {
+      option.selected = true;
+      return;
+    }
+  }
+  if (!mounting || value !== void 0) {
+    select.selectedIndex = -1;
+  }
+}
+function init_select(select) {
+  var observer = new MutationObserver(() => {
+    select_option(select, select.__value);
+  });
+  observer.observe(select, {
+    // Listen to option element changes
+    childList: true,
+    subtree: true,
+    // because of <optgroup>
+    // Listen to option element value attribute changes
+    // (doesn't get notified of select value changes,
+    // because that property is not reflected as an attribute)
+    attributes: true,
+    attributeFilter: ["value"]
+  });
+  teardown(() => {
+    observer.disconnect();
+  });
+}
+function bind_select_value(select, get2, set2 = get2) {
+  var mounting = true;
+  listen_to_event_and_reset_event(select, "change", (is_reset) => {
+    var query = is_reset ? "[selected]" : ":checked";
+    var value;
+    if (select.multiple) {
+      value = [].map.call(select.querySelectorAll(query), get_option_value);
+    } else {
+      var selected_option = select.querySelector(query) ?? // will fall back to first non-disabled option if no option is selected
+      select.querySelector("option:not([disabled])");
+      value = selected_option && get_option_value(selected_option);
+    }
+    set2(value);
+  });
+  effect(() => {
+    var value = get2();
+    select_option(select, value, mounting);
+    if (mounting && value === void 0) {
+      var selected_option = select.querySelector(":checked");
+      if (selected_option !== null) {
+        value = get_option_value(selected_option);
+        set2(value);
+      }
+    }
+    select.__value = value;
+    mounting = false;
+  });
+  init_select(select);
+}
+function get_option_value(option) {
+  if ("__value" in option) {
+    return option.__value;
+  } else {
+    return option.value;
+  }
+}
+function set_selected(element, selected) {
+  if (selected) {
+    if (!element.hasAttribute("selected")) {
+      element.setAttribute("selected", "");
+    }
+  } else {
+    element.removeAttribute("selected");
+  }
+}
+function bind_value(input, get2, set2 = get2) {
+  listen_to_event_and_reset_event(input, "input", (is_reset) => {
+    var value = is_reset ? input.defaultValue : input.value;
+    value = is_numberlike_input(input) ? to_number(value) : value;
+    set2(value);
+    if (value !== (value = get2())) {
+      var start = input.selectionStart;
+      var end = input.selectionEnd;
+      input.value = value ?? "";
+      if (end !== null) {
+        input.selectionStart = start;
+        input.selectionEnd = Math.min(end, input.value.length);
+      }
+    }
+  });
+  if (
+    // If we are hydrating and the value has since changed,
+    // then use the updated value from the input instead.
+    // If defaultValue is set, then value == defaultValue
+    // TODO Svelte 6: remove input.value check and set to empty string?
+    untrack(get2) == null && input.value
+  ) {
+    set2(is_numberlike_input(input) ? to_number(input.value) : input.value);
+  }
+  render_effect(() => {
+    var value = get2();
+    if (is_numberlike_input(input) && value === to_number(input.value)) {
+      return;
+    }
+    if (input.type === "date" && !value && !input.value) {
+      return;
+    }
+    if (value !== input.value) {
+      input.value = value ?? "";
+    }
+  });
+}
+function is_numberlike_input(input) {
+  var type = input.type;
+  return type === "number" || type === "range";
+}
+function to_number(value) {
+  return value === "" ? null : +value;
+}
+async function onTokenChange(_, message, token, workspaces, selectedWorkspace) {
+  set(message, "Testing...");
+  try {
+    set(message, await togglTestToken(get(token)), true);
+    set(workspaces, await togglRefreshWorkspaces(get(token)), true);
+    set(selectedWorkspace, await togglGetWorkspaceId(), true);
+  } catch (error) {
+    console.error("Error testing token:", error);
+    set(message, error.message, true);
+  }
+}
+async function onSaveClick(__1, token, selectedWorkspace, message) {
+  try {
+    await togglSaveSettings({ token: get(token), workspace: get(selectedWorkspace) });
+    set(message, "Settings saved successfully");
+  } catch (error) {
+    console.error("Error saving settings:", error);
+    set(message, "Error saving settings: " + error.message);
+  }
+}
+var root_1 = from_html(`<option> </option>`);
+var root = from_html(`<form><label for="toggl_token" class="svelte-1tqcnsd">Toggl Track API token</label> <input id="toggl_token" type="text" class="svelte-1tqcnsd"/> <label for="toggl_workspace" class="svelte-1tqcnsd">Toggl Workspace</label> <select id="toggl_workspace" class="svelte-1tqcnsd"></select> <p class="message"> </p> <button type="button">Refresh & Save</button></form>`);
+const $$css = {
+  hash: "svelte-1tqcnsd",
+  code: "body {font-family:sans-serif;min-width:200px;}h1 {font-size:1.5em;}label.svelte-1tqcnsd {display:block;margin-top:1em;}input.svelte-1tqcnsd, select.svelte-1tqcnsd {display:block;width:100%;}"
+};
+function Popup($$anchor, $$props) {
+  push($$props, true);
+  append_styles($$anchor, $$css);
+  let token = state("");
+  let workspaces = state(proxy([]));
+  let selectedWorkspace = state(void 0);
+  let message = state("");
+  let loading = state(true);
+  onMount(async () => {
+    try {
+      set(token, await togglGetApiToken() || "", true);
+      set(workspaces, await togglGetWorkspaces(), true);
+      set(selectedWorkspace, await togglGetWorkspaceId(), true);
+      set(loading, false);
+    } catch (error) {
+      console.error("Error loading settings:", error);
+      set(message, "Error loading settings");
+      set(loading, false);
+    }
+  });
+  var form = root();
+  var input = sibling(child(form), 2);
+  input.__change = [onTokenChange, message, token, workspaces, selectedWorkspace];
+  var select = sibling(input, 4);
+  each(select, 21, () => get(workspaces), index, ($$anchor2, workspace) => {
+    var option = root_1();
+    var text = child(option);
+    var option_value = {};
+    template_effect(() => {
+      set_selected(option, get(workspace).selected);
+      set_text(text, get(workspace).name);
+      if (option_value !== (option_value = get(workspace).id)) {
+        option.value = (option.__value = get(workspace).id) ?? "";
+      }
+    });
+    append($$anchor2, option);
+  });
+  var p = sibling(select, 2);
+  var text_1 = child(p);
+  var button = sibling(p, 2);
+  button.__click = [onSaveClick, token, selectedWorkspace, message];
+  template_effect(() => {
+    input.disabled = get(loading);
+    select.disabled = get(loading) || get(workspaces).length === 0;
+    set_text(text_1, get(message));
+    button.disabled = get(loading) || !get(token) || !get(selectedWorkspace);
+  });
+  bind_value(input, () => get(token), ($$value) => set(token, $$value));
+  bind_select_value(select, () => get(selectedWorkspace), ($$value) => set(selectedWorkspace, $$value));
+  append($$anchor, form);
+  pop();
+}
+delegate(["change", "click"]);
+const target = document.getElementById("popup");
+if (!target) {
+  throw new Error("Could not find popup container");
+}
+mount(Popup, { target });
+//# sourceMappingURL=popup.js.map

@@ -2,7 +2,7 @@
  * Content script for Ruddr integration
  */
 import TogglButton from './TogglButton.svelte';
-import ReportPanel from './ReportPanel.svelte';
+// import ReportPanel from './ReportPanel.svelte';
 import {togglFetchReport, togglSaveProjectMapping, type TogglReportItem} from '../lib/toggl';
 import {mount} from "svelte";
 
@@ -11,18 +11,13 @@ let togglLastProjectIdClicked: string | null = null;
 let togglLastReportDate: string = '_';
 const togglClickedReportItems: Set<string> = new Set();
 
-// Components
-let buttonComponent: TogglButton | null = null;
-let reportComponent: ReportPanel | null = null;
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    // Observe DOM changes to detect when the form is loaded
-    const observer = new MutationObserver(() => {
+export function togglInit(): void {
+    const observer = new MutationObserver(mutations => {
         togglAddButton();
     });
-    observer.observe(document.body, {childList: true});
-});
+    observer.observe(document.body, { childList: true });
+    // TODO: Is it possible to observe not the entire body?
+}
 
 /**
  * Find an element with specific text content
@@ -81,10 +76,10 @@ function togglAddButton(): void {
     entryDetailsHeader.appendChild(buttonContainer);
 
     // Create and mount the Toggl button component
-    buttonComponent = mount(TogglButton, {
+    mount(TogglButton, {
         target: buttonContainer,
         props: {
-            isReportVisible: false
+            panelVisible: false
         }
     });
 }
@@ -151,22 +146,22 @@ function togglShowReportPanel(report: TogglReportItem[]): void {
     const panelContainer = document.createElement('div');
     button.insertAdjacentElement('afterend', panelContainer);
 
-    // Create and mount the report panel component
-    reportComponent = new ReportPanel({
-        target: panelContainer,
-        props: {
-            report,
-            date: togglLastReportDate,
-            clickedItems: togglClickedReportItems
-        }
-    });
-
-    // Add event listeners
-    reportComponent.$on('itemClick', (event) => {
-        togglFillFormFromReport(event.detail.item);
-    });
-
-    reportComponent.$on('close', togglRemoveReportPanel);
+    // // Create and mount the report panel component
+    // reportComponent = new ReportPanel({
+    //     target: panelContainer,
+    //     props: {
+    //         report,
+    //         date: togglLastReportDate,
+    //         clickedItems: togglClickedReportItems
+    //     }
+    // });
+    //
+    // // Add event listeners
+    // reportComponent.$on('itemClick', (event) => {
+    //     togglFillFormFromReport(event.detail.item);
+    // });
+    //
+    // reportComponent.$on('close', togglRemoveReportPanel);
 
     // Add global click listener to close panel when clicking outside
     document.addEventListener('click', togglOnDocumentClick);
@@ -190,10 +185,10 @@ function togglRemoveReportPanel(): void {
 
     const panel = document.getElementById('toggl_report');
     if (panel) {
-        if (reportComponent) {
-            reportComponent.$destroy();
-            reportComponent = null;
-        }
+        // if (reportComponent) {
+        //     reportComponent.$destroy();
+        //     reportComponent = null;
+        // }
         panel.remove();
     }
 }
