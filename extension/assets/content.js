@@ -190,18 +190,24 @@ function ReportPanel($$anchor, $$props) {
   pop();
 }
 delegate(["click", "keydown"]);
-async function onClick(_, panelVisible, date, $$props, report) {
+async function onClick(_, panelVisible, date, $$props, reportCache, report) {
   if (get(panelVisible)) {
     set(panelVisible, false);
   } else {
     set(date, $$props.getDate(), true);
-    console.log(`Fetching Toggl report for date: ${get(date)}`);
-    try {
-      set(report, await togglFetchReport(get(date)), true);
-      console.log("Got report", get(report));
+    if (reportCache.has(get(date))) {
+      set(report, reportCache.get(get(date)), true);
       set(panelVisible, true);
-    } catch (err) {
-      console.warn(err);
+    } else {
+      console.log(`Fetching Toggl report for date: ${get(date)}`);
+      try {
+        set(report, await togglFetchReport(get(date)), true);
+        reportCache.set(get(date), get(report));
+        console.log("Got report", get(report));
+        set(panelVisible, true);
+      } catch (err) {
+        console.warn(err);
+      }
     }
   }
 }
@@ -216,6 +222,7 @@ function TogglButton($$anchor, $$props) {
   let date = state("_");
   let panelVisible = state(false);
   let report = state(proxy([]));
+  const reportCache = /* @__PURE__ */ new Map();
   function onDocumentClick(event) {
     const panel = document.getElementById("toggl_report");
     if (panel && !panel.contains(event.target) && event.target !== document.getElementById("toggl_button")) {
@@ -225,7 +232,7 @@ function TogglButton($$anchor, $$props) {
   document.addEventListener("click", onDocumentClick);
   var fragment = root();
   var button = first_child(fragment);
-  button.__click = [onClick, panelVisible, date, $$props, report];
+  button.__click = [onClick, panelVisible, date, $$props, reportCache, report];
   var node = sibling(button, 2);
   {
     var consequent = ($$anchor2) => {
