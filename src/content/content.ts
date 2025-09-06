@@ -4,32 +4,17 @@
 import TogglButton from './TogglButton.svelte';
 import {togglSaveProjectMapping, type TogglReportItem} from '../lib/toggl';
 import {mount} from 'svelte';
-import {DateTime} from 'luxon';
+import {DateTime, Duration} from 'luxon';
 
-// Global state
-let togglLastProjectIdClicked: string | null = null;
-let togglLastReportDate: string = '_';
-const togglClickedReportItems: Set<string> = new Set();
-
+/**
+ * Initialise the content script
+ */
 export function togglInit(): void {
     const observer = new MutationObserver(mutations => {
         togglAddButton();
     });
     observer.observe(document.body, { childList: true });
     // TODO: Is it possible to observe not the entire body?
-}
-
-/**
- * Find an element with specific text content
- */
-function togglFindElementWithText(startElement: Element, selector: string, text: string): Element | null {
-    const elements = startElement.querySelectorAll(selector);
-    for (const element of elements) {
-        if (element.textContent === text) {
-            return element;
-        }
-    }
-    return null;
 }
 
 /**
@@ -80,8 +65,22 @@ function togglAddButton(): void {
         target: buttonContainer,
         props: {
             getDate: togglGetReportDate,
+            onItemClick: togglFillFormFromReport
         }
     });
+}
+
+/**
+ * Find an element with specific text content
+ */
+function togglFindElementWithText(startElement: Element, selector: string, text: string): Element | null {
+    const elements = startElement.querySelectorAll(selector);
+    for (const element of elements) {
+        if (element.textContent === text) {
+            return element;
+        }
+    }
+    return null;
 }
 
 /**
@@ -108,17 +107,16 @@ function togglFindForm(): HTMLFormElement | null {
  * Fill the form with data from a report item
  */
 function togglFillFormFromReport(item: TogglReportItem): void {
-    togglLastProjectIdClicked = item?.project?.id || null;
-    const itemId = `${togglLastReportDate}_${item?.project?.id}`;
-    togglClickedReportItems.add(itemId);
+    // togglLastProjectIdClicked = item?.project?.id || null;
+    // const itemId = `${togglLastReportDate}_${item?.project?.id}`;
+    // togglClickedReportItems.add(itemId);
 
     const form = togglFindForm();
 
     // Set duration
     const duration = form?.querySelector('input[name="minutes"]');
     if (duration) {
-        // @ts-ignore - moment is loaded globally
-        const formattedDuration = togglFormatDuration(moment.duration(item.seconds, 'seconds'));
+        const formattedDuration = Duration.fromMillis(item.seconds * 1000).toFormat('h:mm');
         togglSetInputValue(duration as HTMLInputElement, formattedDuration);
     }
 
@@ -130,19 +128,10 @@ function togglFillFormFromReport(item: TogglReportItem): void {
     }
 
     // Save project mapping
-    if (togglLastProjectIdClicked) {
-        const mapping = togglGetCustomerProjectActivity();
-        togglSaveProjectMapping(togglLastProjectIdClicked, mapping);
-    }
-
-    // togglRemoveReportPanel();
-}
-
-/**
- * Format duration in hours:minutes format
- */
-function togglFormatDuration(duration: any): string {
-    return `${duration.hours()}:${String(duration.minutes()).padStart(2, '0')}`;
+    // if (togglLastProjectIdClicked) {
+    //     const mapping = togglGetCustomerProjectActivity();
+    //     togglSaveProjectMapping(togglLastProjectIdClicked, mapping);
+    // }
 }
 
 /**

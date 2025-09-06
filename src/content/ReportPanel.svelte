@@ -1,15 +1,15 @@
 <script lang="ts">
-
     import {type TogglReportItem} from "../lib/toggl";
 
     type ReportPanelProps = {
         report: TogglReportItem[];
         date: string;
+        onItemClick: (item: TogglReportItem) => void;
     }
 
-    let {report, date}: ReportPanelProps = $props();
+    let {report, date, onItemClick}: ReportPanelProps = $props();
 
-    let clickedItems: Set<string> = new Set();
+    let clickedItems = $state(new Set());
 
     let totalSeconds = report.reduce((acc, item) => acc + item.seconds, 0);
 
@@ -19,15 +19,11 @@
         return `${hours}:${minutes.toString().padStart(2, '0')}`;
     }
 
-    function onItemClick(item: TogglReportItem) {
-        // dispatch('itemClick', {item});
+    function onItemClickInt(item: TogglReportItem) {
+        onItemClick(item);
+        const itemId = `${date}_${item.project?.id}`;
+        clickedItems.add(itemId);
     }
-
-    // function onOutsideClick(event: MouseEvent) {
-    //     if (event.target === event.currentTarget) {
-    //         dispatch('close');
-    //     }
-    // }
 </script>
 
 <div id="toggl_report" class="report-panel">
@@ -41,10 +37,10 @@
             <div class="report-item" class:clicked={isClicked}
                  tabindex={index}
                  role="button"
-                 onclick={() => onItemClick(item)}
+                 onclick={() => onItemClickInt(item)}
                  onkeydown={(event) => {
                      if (event.key === 'Enter') {
-                         onItemClick(item);
+                         onItemClickInt(item);
                      }
                  }}>
                 <h4 style="color: {item.color}">

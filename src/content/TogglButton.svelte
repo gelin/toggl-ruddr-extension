@@ -2,7 +2,12 @@
     import ReportPanel from "./ReportPanel.svelte";
     import {togglFetchReport, type TogglReportItem} from "../lib/toggl";
 
-    let {getDate} = $props();
+    type TogglButtonProps = {
+        getDate: () => string;
+        onItemClick: (item: TogglReportItem) => void;
+    }
+
+    let {getDate, onItemClick}: TogglButtonProps = $props();
     let date = $state('_');
     let panelVisible = $state(false);
     let report = $state<TogglReportItem[]>([]);
@@ -31,6 +36,11 @@
         }
     }
 
+    function onItemClickInt(item: TogglReportItem) {
+        panelVisible = false;
+        onItemClick(item);
+    }
+
     // Handle document click to close the report panel
     function onDocumentClick(event: MouseEvent): void {
         const panel = document.getElementById('toggl_report');
@@ -46,6 +56,7 @@
     <ReportPanel
             date={date}
             report={report}
+            onItemClick={onItemClickInt}
     />
 {/if}
 

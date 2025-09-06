@@ -1,4 +1,4 @@
-import { E as block, F as EFFECT_TRANSPARENT, G as resume_effect, H as branch, I as pause_effect, U as UNINITIALIZED, h as delegate, p as push, j as append_styles, m as from_html, z as child, w as append, x as pop, J as first_child, o as each, K as set_attribute, n as sibling, q as template_effect, v as get, L as user_derived, A as set_text, C as index, k as state, l as proxy, y as set, D as mount } from "./attributes.js";
+import { E as block, F as EFFECT_TRANSPARENT, G as resume_effect, H as branch, I as pause_effect, U as UNINITIALIZED, h as delegate, p as push, j as append_styles, l as proxy, m as from_html, z as child, w as append, x as pop, J as first_child, o as each, K as set_attribute, n as sibling, q as template_effect, v as get, L as user_derived, A as set_text, C as index, k as state, y as set, D as mount } from "./attributes.js";
 import { g as togglFetchReport } from "./toggl.js";
 function if_block(node, fn, [root_index, hydrate_index] = [0, 0]) {
   var anchor = node;
@@ -109,10 +109,10 @@ function set_style(dom, value, prev_styles, next_styles) {
   return next_styles;
 }
 var root_1 = from_html(`<p class="svelte-16ibe5i">[No time tracked in Toggl]</p>`);
-var on_click = (_, onItemClick, item) => onItemClick(get(item));
-var on_keydown = (event, onItemClick, item) => {
+var on_click = (_, onItemClickInt, item) => onItemClickInt(get(item));
+var on_keydown = (event, onItemClickInt, item) => {
   if (event.key === "Enter") {
-    onItemClick(get(item));
+    onItemClickInt(get(item));
   }
 };
 var root_3 = from_html(`<div role="button"><h4 class="svelte-16ibe5i"> </h4> <p class="svelte-16ibe5i"> </p></div>`);
@@ -125,14 +125,18 @@ const $$css$1 = {
 function ReportPanel($$anchor, $$props) {
   push($$props, true);
   append_styles($$anchor, $$css$1);
-  let clickedItems = /* @__PURE__ */ new Set();
+  let clickedItems = proxy(/* @__PURE__ */ new Set());
   let totalSeconds = $$props.report.reduce((acc, item) => acc + item.seconds, 0);
   function formatDuration(seconds) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor(seconds % 3600 / 60);
     return `${hours}:${minutes.toString().padStart(2, "0")}`;
   }
-  function onItemClick(item) {
+  function onItemClickInt(item) {
+    var _a;
+    $$props.onItemClick(item);
+    const itemId = `${$$props.date}_${(_a = item.project) == null ? void 0 : _a.id}`;
+    clickedItems.add(itemId);
   }
   var div = root$1();
   var node = child(div);
@@ -153,8 +157,8 @@ function ReportPanel($$anchor, $$props) {
         const isClicked = user_derived(() => clickedItems.has(get(itemId)));
         let classes;
         set_attribute(div_1, "tabindex", index2);
-        div_1.__click = [on_click, onItemClick, item];
-        div_1.__keydown = [on_keydown, onItemClick, item];
+        div_1.__click = [on_click, onItemClickInt, item];
+        div_1.__keydown = [on_keydown, onItemClickInt, item];
         var h4 = child(div_1);
         var text = child(h4);
         var p_1 = sibling(h4, 2);
@@ -223,6 +227,10 @@ function TogglButton($$anchor, $$props) {
   let panelVisible = state(false);
   let report = state(proxy([]));
   const reportCache = /* @__PURE__ */ new Map();
+  function onItemClickInt(item) {
+    set(panelVisible, false);
+    $$props.onItemClick(item);
+  }
   function onDocumentClick(event) {
     const panel = document.getElementById("toggl_report");
     if (panel && !panel.contains(event.target) && event.target !== document.getElementById("toggl_button")) {
@@ -242,7 +250,8 @@ function TogglButton($$anchor, $$props) {
         },
         get report() {
           return get(report);
-        }
+        },
+        onItemClick: onItemClickInt
       });
     };
     if_block(node, ($$render) => {
@@ -6743,15 +6752,6 @@ function togglInit() {
   });
   observer.observe(document.body, { childList: true });
 }
-function togglFindElementWithText(startElement, selector, text) {
-  const elements = startElement.querySelectorAll(selector);
-  for (const element of elements) {
-    if (element.textContent === text) {
-      return element;
-    }
-  }
-  return null;
-}
 function togglAddButton() {
   if (document.getElementById("toggl_button")) {
     return;
@@ -6782,9 +6782,19 @@ function togglAddButton() {
   mount(TogglButton, {
     target: buttonContainer,
     props: {
-      getDate: togglGetReportDate
+      getDate: togglGetReportDate,
+      onItemClick: togglFillFormFromReport
     }
   });
+}
+function togglFindElementWithText(startElement, selector, text) {
+  const elements = startElement.querySelectorAll(selector);
+  for (const element of elements) {
+    if (element.textContent === text) {
+      return element;
+    }
+  }
+  return null;
 }
 function togglGetReportDate() {
   const form = togglFindForm();
@@ -6797,6 +6807,25 @@ function togglFindForm() {
     return null;
   }
   return dialogDiv.querySelector("form");
+}
+function togglFillFormFromReport(item) {
+  const form = togglFindForm();
+  const duration = form == null ? void 0 : form.querySelector('input[name="minutes"]');
+  if (duration) {
+    const formattedDuration = Duration.fromMillis(item.seconds * 1e3).toFormat("h:mm");
+    togglSetInputValue(duration, formattedDuration);
+  }
+  const description = form == null ? void 0 : form.querySelector('textarea[name="notes"]');
+  if (description) {
+    description.style.height = `${description.scrollHeight}px`;
+    togglSetInputValue(description, item.description);
+  }
+}
+function togglSetInputValue(target, value) {
+  target.value = value;
+  const event = new Event("input", { bubbles: true });
+  Object.defineProperty(event, "target", { writable: false, value: target });
+  target.dispatchEvent(event);
 }
 export {
   togglInit
