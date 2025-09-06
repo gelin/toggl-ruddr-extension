@@ -7,7 +7,14 @@ A Chrome extension that helps insert tracked hours from Toggl to Ruddr.
 - Fetch time entries from Toggl Track
 - Insert time entries into Ruddr time tracking forms
 - Save settings for Toggl API token and workspace
-- Map Toggl projects to Ruddr projects
+- TODO: Map Toggl projects to Ruddr projects
+
+## Quick Start
+
+1. Open Chrome and navigate to `chrome://extensions/`
+2. Enable "Developer mode" (toggle in the top right)
+3. Click "Load unpacked" and select the `extension` directory
+4. The extension should now be installed and visible in your extensions list
 
 ## Development
 
@@ -25,18 +32,8 @@ This extension is built with:
 
 ### Setup
 
-1. Clone the repository
-2. If you're using NVM, run:
-
 ```bash
 nvm use
-```
-
-This will automatically use the Node.js version specified in the `.nvmrc` file.
-
-3. Install dependencies:
-
-```bash
 npm install
 ```
 
@@ -57,16 +54,8 @@ The built extension will be in the `extension` directory.
 
 ### Development
 
-For development with hot reloading:
+For development with hot reloading (applicable only for the extension popup):
 
 ```bash
 npm run dev
 ```
-
-### Testing in Chrome
-
-1. Build the extension
-2. Open Chrome and navigate to `chrome://extensions/`
-3. Enable "Developer mode" (toggle in the top right)
-4. Click "Load unpacked" and select the `extension` directory
-5. The extension should now be installed and visible in your extensions list

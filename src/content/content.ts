@@ -89,7 +89,7 @@ function togglAddButton(): void {
  */
 async function onTogglButtonClick(): Promise<void> {
     if (document.getElementById('toggl_report')) {
-        togglRemoveReportPanel();
+        // togglRemoveReportPanel();
     } else {
         const date = togglGetReportDate();
         togglLastReportDate = date;
@@ -98,7 +98,7 @@ async function onTogglButtonClick(): Promise<void> {
         try {
             const report = await togglFetchReport(date);
             console.log('Got report', report);
-            togglShowReportPanel(report);
+            // togglShowReportPanel(report);
         } catch (err) {
             console.warn(err);
         }
@@ -109,7 +109,7 @@ async function onTogglButtonClick(): Promise<void> {
  * Get the date from the form
  */
 function togglGetReportDate(): string {
-    const form = togglfindForm();
+    const form = togglFindForm();
     const dateInput = form?.querySelector('input[name="date"]');
     // @ts-ignore - moment is loaded globally
     return moment(dateInput?.value, 'DD/MM/YYYY').format('YYYY-MM-DD');
@@ -118,79 +118,12 @@ function togglGetReportDate(): string {
 /**
  * Find the form element
  */
-function togglfindForm(): HTMLFormElement | null {
+function togglFindForm(): HTMLFormElement | null {
     const dialogDiv = document.querySelector('body > div:last-of-type');
     if (!dialogDiv) {
         return null;
     }
     return dialogDiv.querySelector('form');
-}
-
-/**
- * Show the report panel
- */
-function togglShowReportPanel(report: TogglReportItem[]): void {
-    togglLastProjectIdClicked = null;
-
-    // Don't add if already exists
-    if (document.getElementById('toggl_report')) {
-        return;
-    }
-
-    const button = document.getElementById('toggl_button');
-    if (!button) {
-        return;
-    }
-
-    // Create a container for the report panel
-    const panelContainer = document.createElement('div');
-    button.insertAdjacentElement('afterend', panelContainer);
-
-    // // Create and mount the report panel component
-    // reportComponent = new ReportPanel({
-    //     target: panelContainer,
-    //     props: {
-    //         report,
-    //         date: togglLastReportDate,
-    //         clickedItems: togglClickedReportItems
-    //     }
-    // });
-    //
-    // // Add event listeners
-    // reportComponent.$on('itemClick', (event) => {
-    //     togglFillFormFromReport(event.detail.item);
-    // });
-    //
-    // reportComponent.$on('close', togglRemoveReportPanel);
-
-    // Add global click listener to close panel when clicking outside
-    document.addEventListener('click', togglOnDocumentClick);
-}
-
-/**
- * Handle document click to close the report panel
- */
-function togglOnDocumentClick(event: MouseEvent): void {
-    const panel = document.getElementById('toggl_report');
-    if (panel && !panel.contains(event.target as Node) && event.target !== document.getElementById('toggl_button')) {
-        togglRemoveReportPanel();
-    }
-}
-
-/**
- * Remove the report panel
- */
-function togglRemoveReportPanel(): void {
-    document.removeEventListener('click', togglOnDocumentClick);
-
-    const panel = document.getElementById('toggl_report');
-    if (panel) {
-        // if (reportComponent) {
-        //     reportComponent.$destroy();
-        //     reportComponent = null;
-        // }
-        panel.remove();
-    }
 }
 
 /**
@@ -201,7 +134,7 @@ function togglFillFormFromReport(item: TogglReportItem): void {
     const itemId = `${togglLastReportDate}_${item?.project?.id}`;
     togglClickedReportItems.add(itemId);
 
-    const form = togglfindForm();
+    const form = togglFindForm();
 
     // Set duration
     const duration = form?.querySelector('input[name="minutes"]');
@@ -224,7 +157,7 @@ function togglFillFormFromReport(item: TogglReportItem): void {
         togglSaveProjectMapping(togglLastProjectIdClicked, mapping);
     }
 
-    togglRemoveReportPanel();
+    // togglRemoveReportPanel();
 }
 
 /**

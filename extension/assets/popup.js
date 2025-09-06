@@ -1,12 +1,12 @@
-import { s as set_active_reaction, a as set_active_effect, b as active_reaction, c as active_effect, d as component_context, u as user_effect, e as untrack, f as create_text, g as block, h as get, i as derived_safe_equal, r as resume_effect, j as branch, p as pause_effect, I as INERT, k as array_from, l as internal_set, m as mutable_source, n as source, E as EACH_INDEX_REACTIVE, o as pause_children, q as clear_text_content, t as run_out_transitions, v as destroy_effect, w as get_next_sibling, x as EACH_ITEM_REACTIVE, y as EACH_ITEM_IMMUTABLE, z as is_array, A as effect, B as teardown, C as is, D as render_effect, F as delegate, G as push, H as append_styles, J as state, K as proxy, L as from_html, M as sibling, N as template_effect, O as append, P as pop, Q as set, R as child, S as set_text, T as mount } from "./css.js";
+import { s as set_active_reaction, a as set_active_effect, b as active_reaction, c as active_effect, d as component_context, u as user_effect, e as untrack, f as effect, t as teardown, i as is_array, g as is, r as render_effect, h as delegate, p as push, j as append_styles, k as state, l as proxy, m as from_html, n as sibling, o as each, q as template_effect, v as get, w as append, x as pop, y as set, z as child, A as set_text, B as set_selected, C as index, D as mount } from "./attributes.js";
 import { t as togglTestToken, a as togglRefreshWorkspaces, b as togglGetWorkspaceId, c as togglSaveSettings, d as togglGetApiToken, e as togglGetWorkspaces } from "./toggl.js";
 (function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
     return;
   }
-  for (const link2 of document.querySelectorAll('link[rel="modulepreload"]')) {
-    processPreload(link2);
+  for (const link of document.querySelectorAll('link[rel="modulepreload"]')) {
+    processPreload(link);
   }
   new MutationObserver((mutations) => {
     for (const mutation of mutations) {
@@ -19,22 +19,22 @@ import { t as togglTestToken, a as togglRefreshWorkspaces, b as togglGetWorkspac
       }
     }
   }).observe(document, { childList: true, subtree: true });
-  function getFetchOpts(link2) {
+  function getFetchOpts(link) {
     const fetchOpts = {};
-    if (link2.integrity) fetchOpts.integrity = link2.integrity;
-    if (link2.referrerPolicy) fetchOpts.referrerPolicy = link2.referrerPolicy;
-    if (link2.crossOrigin === "use-credentials")
+    if (link.integrity) fetchOpts.integrity = link.integrity;
+    if (link.referrerPolicy) fetchOpts.referrerPolicy = link.referrerPolicy;
+    if (link.crossOrigin === "use-credentials")
       fetchOpts.credentials = "include";
-    else if (link2.crossOrigin === "anonymous") fetchOpts.credentials = "omit";
+    else if (link.crossOrigin === "anonymous") fetchOpts.credentials = "omit";
     else fetchOpts.credentials = "same-origin";
     return fetchOpts;
   }
-  function processPreload(link2) {
-    if (link2.ep)
+  function processPreload(link) {
+    if (link.ep)
       return;
-    link2.ep = true;
-    const fetchOpts = getFetchOpts(link2);
-    fetch(link2.href, fetchOpts);
+    link.ep = true;
+    const fetchOpts = getFetchOpts(link);
+    fetch(link.href, fetchOpts);
   }
 })();
 function lifecycle_outside_component(name) {
@@ -47,7 +47,6 @@ function select_multiple_invalid_value() {
     console.warn(`https://svelte.dev/e/select_multiple_invalid_value`);
   }
 }
-let hydrating = false;
 let listening_to_form_reset = false;
 function add_form_reset_listener() {
   if (!listening_to_form_reset) {
@@ -110,271 +109,6 @@ function onMount(fn) {
         cleanup
       );
     });
-  }
-}
-function index(_, i) {
-  return i;
-}
-function pause_effects(state2, items, controlled_anchor, items_map) {
-  var transitions = [];
-  var length = items.length;
-  for (var i = 0; i < length; i++) {
-    pause_children(items[i].e, transitions, true);
-  }
-  var is_controlled = length > 0 && transitions.length === 0 && controlled_anchor !== null;
-  if (is_controlled) {
-    var parent_node = (
-      /** @type {Element} */
-      /** @type {Element} */
-      controlled_anchor.parentNode
-    );
-    clear_text_content(parent_node);
-    parent_node.append(
-      /** @type {Element} */
-      controlled_anchor
-    );
-    items_map.clear();
-    link(state2, items[0].prev, items[length - 1].next);
-  }
-  run_out_transitions(transitions, () => {
-    for (var i2 = 0; i2 < length; i2++) {
-      var item = items[i2];
-      if (!is_controlled) {
-        items_map.delete(item.k);
-        link(state2, item.prev, item.next);
-      }
-      destroy_effect(item.e, !is_controlled);
-    }
-  });
-}
-function each(node, flags, get_collection, get_key, render_fn, fallback_fn = null) {
-  var anchor = node;
-  var state2 = { flags, items: /* @__PURE__ */ new Map(), first: null };
-  {
-    var parent_node = (
-      /** @type {Element} */
-      node
-    );
-    anchor = parent_node.appendChild(create_text());
-  }
-  var fallback = null;
-  var was_empty = false;
-  var each_array = derived_safe_equal(() => {
-    var collection = get_collection();
-    return is_array(collection) ? collection : collection == null ? [] : array_from(collection);
-  });
-  block(() => {
-    var array = get(each_array);
-    var length = array.length;
-    if (was_empty && length === 0) {
-      return;
-    }
-    was_empty = length === 0;
-    {
-      reconcile(array, state2, anchor, render_fn, flags, get_key, get_collection);
-    }
-    if (fallback_fn !== null) {
-      if (length === 0) {
-        if (fallback) {
-          resume_effect(fallback);
-        } else {
-          fallback = branch(() => fallback_fn(anchor));
-        }
-      } else if (fallback !== null) {
-        pause_effect(fallback, () => {
-          fallback = null;
-        });
-      }
-    }
-    get(each_array);
-  });
-}
-function reconcile(array, state2, anchor, render_fn, flags, get_key, get_collection) {
-  var length = array.length;
-  var items = state2.items;
-  var first = state2.first;
-  var current = first;
-  var seen;
-  var prev = null;
-  var matched = [];
-  var stashed = [];
-  var value;
-  var key;
-  var item;
-  var i;
-  for (i = 0; i < length; i += 1) {
-    value = array[i];
-    key = get_key(value, i);
-    item = items.get(key);
-    if (item === void 0) {
-      var child_anchor = current ? (
-        /** @type {TemplateNode} */
-        current.e.nodes_start
-      ) : anchor;
-      prev = create_item(
-        child_anchor,
-        state2,
-        prev,
-        prev === null ? state2.first : prev.next,
-        value,
-        key,
-        i,
-        render_fn,
-        flags,
-        get_collection
-      );
-      items.set(key, prev);
-      matched = [];
-      stashed = [];
-      current = prev.next;
-      continue;
-    }
-    {
-      update_item(item, value, i);
-    }
-    if ((item.e.f & INERT) !== 0) {
-      resume_effect(item.e);
-    }
-    if (item !== current) {
-      if (seen !== void 0 && seen.has(item)) {
-        if (matched.length < stashed.length) {
-          var start = stashed[0];
-          var j;
-          prev = start.prev;
-          var a = matched[0];
-          var b = matched[matched.length - 1];
-          for (j = 0; j < matched.length; j += 1) {
-            move(matched[j], start, anchor);
-          }
-          for (j = 0; j < stashed.length; j += 1) {
-            seen.delete(stashed[j]);
-          }
-          link(state2, a.prev, b.next);
-          link(state2, prev, a);
-          link(state2, b, start);
-          current = start;
-          prev = b;
-          i -= 1;
-          matched = [];
-          stashed = [];
-        } else {
-          seen.delete(item);
-          move(item, current, anchor);
-          link(state2, item.prev, item.next);
-          link(state2, item, prev === null ? state2.first : prev.next);
-          link(state2, prev, item);
-          prev = item;
-        }
-        continue;
-      }
-      matched = [];
-      stashed = [];
-      while (current !== null && current.k !== key) {
-        if ((current.e.f & INERT) === 0) {
-          (seen ?? (seen = /* @__PURE__ */ new Set())).add(current);
-        }
-        stashed.push(current);
-        current = current.next;
-      }
-      if (current === null) {
-        continue;
-      }
-      item = current;
-    }
-    matched.push(item);
-    prev = item;
-    current = item.next;
-  }
-  if (current !== null || seen !== void 0) {
-    var to_destroy = seen === void 0 ? [] : array_from(seen);
-    while (current !== null) {
-      if ((current.e.f & INERT) === 0) {
-        to_destroy.push(current);
-      }
-      current = current.next;
-    }
-    var destroy_length = to_destroy.length;
-    if (destroy_length > 0) {
-      var controlled_anchor = length === 0 ? anchor : null;
-      pause_effects(state2, to_destroy, controlled_anchor, items);
-    }
-  }
-  active_effect.first = state2.first && state2.first.e;
-  active_effect.last = prev && prev.e;
-}
-function update_item(item, value, index2, type) {
-  {
-    internal_set(item.v, value);
-  }
-  {
-    item.i = index2;
-  }
-}
-function create_item(anchor, state2, prev, next, value, key, index2, render_fn, flags, get_collection) {
-  var reactive = (flags & EACH_ITEM_REACTIVE) !== 0;
-  var mutable = (flags & EACH_ITEM_IMMUTABLE) === 0;
-  var v = reactive ? mutable ? mutable_source(value, false, false) : source(value) : value;
-  var i = (flags & EACH_INDEX_REACTIVE) === 0 ? index2 : source(index2);
-  var item = {
-    i,
-    v,
-    k: key,
-    a: null,
-    // @ts-expect-error
-    e: null,
-    prev,
-    next
-  };
-  try {
-    item.e = branch(() => render_fn(anchor, v, i, get_collection), hydrating);
-    item.e.prev = prev && prev.e;
-    item.e.next = next && next.e;
-    if (prev === null) {
-      state2.first = item;
-    } else {
-      prev.next = item;
-      prev.e.next = item.e;
-    }
-    if (next !== null) {
-      next.prev = item;
-      next.e.prev = item.e;
-    }
-    return item;
-  } finally {
-  }
-}
-function move(item, next, anchor) {
-  var end = item.next ? (
-    /** @type {TemplateNode} */
-    item.next.e.nodes_start
-  ) : anchor;
-  var dest = next ? (
-    /** @type {TemplateNode} */
-    next.e.nodes_start
-  ) : anchor;
-  var node = (
-    /** @type {TemplateNode} */
-    item.e.nodes_start
-  );
-  while (node !== end) {
-    var next_node = (
-      /** @type {TemplateNode} */
-      get_next_sibling(node)
-    );
-    dest.before(node);
-    node = next_node;
-  }
-}
-function link(state2, prev, next) {
-  if (prev === null) {
-    state2.first = next;
-  } else {
-    prev.next = next;
-    prev.e.next = next && next.e;
-  }
-  if (next !== null) {
-    next.prev = prev;
-    next.e.prev = prev && prev.e;
   }
 }
 function select_option(select, value, mounting) {
@@ -454,15 +188,6 @@ function get_option_value(option) {
     return option.__value;
   } else {
     return option.value;
-  }
-}
-function set_selected(element, selected) {
-  if (selected) {
-    if (!element.hasAttribute("selected")) {
-      element.setAttribute("selected", "");
-    }
-  } else {
-    element.removeAttribute("selected");
   }
 }
 function bind_value(input, get2, set2 = get2) {

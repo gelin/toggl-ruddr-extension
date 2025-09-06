@@ -8,15 +8,20 @@ if (typeof window !== "undefined") {
 }
 const EACH_ITEM_REACTIVE = 1;
 const EACH_INDEX_REACTIVE = 1 << 1;
+const EACH_IS_CONTROLLED = 1 << 2;
+const EACH_IS_ANIMATED = 1 << 3;
 const EACH_ITEM_IMMUTABLE = 1 << 4;
+const TEMPLATE_FRAGMENT = 1;
 const TEMPLATE_USE_IMPORT_NODE = 1 << 1;
 const UNINITIALIZED = Symbol();
+const NAMESPACE_HTML = "http://www.w3.org/1999/xhtml";
 const DEV = false;
 var is_array = Array.isArray;
 var index_of = Array.prototype.indexOf;
 var array_from = Array.from;
 var define_property = Object.defineProperty;
 var get_descriptor = Object.getOwnPropertyDescriptor;
+var get_descriptors = Object.getOwnPropertyDescriptors;
 var object_prototype = Object.prototype;
 var array_prototype = Array.prototype;
 var get_prototype_of = Object.getPrototypeOf;
@@ -393,6 +398,12 @@ function derived(fn) {
   return signal;
 }
 // @__NO_SIDE_EFFECTS__
+function user_derived(fn) {
+  const d = /* @__PURE__ */ derived(fn);
+  push_reaction_value(d);
+  return d;
+}
+// @__NO_SIDE_EFFECTS__
 function derived_safe_equal(fn) {
   const signal = /* @__PURE__ */ derived(fn);
   signal.equals = safe_equals;
@@ -538,6 +549,7 @@ function mark_reactions(signal, status) {
     }
   }
 }
+let hydrating = false;
 var $window;
 var is_firefox;
 var first_child_getter;
@@ -578,6 +590,19 @@ function get_next_sibling(node) {
 function child(node, is_text) {
   {
     return /* @__PURE__ */ get_first_child(node);
+  }
+}
+function first_child(fragment, is_text) {
+  {
+    var first = (
+      /** @type {DocumentFragment} */
+      /* @__PURE__ */ get_first_child(
+        /** @type {Node} */
+        fragment
+      )
+    );
+    if (first instanceof Comment && first.data === "") return /* @__PURE__ */ get_next_sibling(first);
+    return first;
   }
 }
 function sibling(node, count = 1, is_text = false) {
@@ -1116,13 +1141,13 @@ function update_reaction(reaction) {
 function remove_reaction(signal, dependency) {
   let reactions = dependency.reactions;
   if (reactions !== null) {
-    var index = index_of.call(reactions, signal);
-    if (index !== -1) {
+    var index2 = index_of.call(reactions, signal);
+    if (index2 !== -1) {
       var new_length = reactions.length - 1;
       if (new_length === 0) {
         reactions = dependency.reactions = null;
       } else {
-        reactions[index] = reactions[new_length];
+        reactions[index2] = reactions[new_length];
         reactions.pop();
       }
     }
@@ -1455,20 +1480,31 @@ function assign_nodes(start, end) {
 }
 // @__NO_SIDE_EFFECTS__
 function from_html(content, flags) {
+  var is_fragment = (flags & TEMPLATE_FRAGMENT) !== 0;
   var use_import_node = (flags & TEMPLATE_USE_IMPORT_NODE) !== 0;
   var node;
   var has_start = !content.startsWith("<!>");
   return () => {
     if (node === void 0) {
       node = create_fragment_from_html(has_start ? content : "<!>" + content);
-      node = /** @type {Node} */
+      if (!is_fragment) node = /** @type {Node} */
       /* @__PURE__ */ get_first_child(node);
     }
     var clone = (
       /** @type {TemplateNode} */
       use_import_node || is_firefox ? document.importNode(node, true) : node.cloneNode(true)
     );
-    {
+    if (is_fragment) {
+      var start = (
+        /** @type {TemplateNode} */
+        /* @__PURE__ */ get_first_child(clone)
+      );
+      var end = (
+        /** @type {TemplateNode} */
+        clone.lastChild
+      );
+      assign_nodes(start, end);
+    } else {
       assign_nodes(clone, clone);
     }
     return clone;
@@ -1564,6 +1600,314 @@ function _mount(Component, { target, anchor, props = {}, events, context, intro 
   return component;
 }
 let mounted_components = /* @__PURE__ */ new WeakMap();
+function index(_, i) {
+  return i;
+}
+function pause_effects(state2, items, controlled_anchor, items_map) {
+  var transitions = [];
+  var length = items.length;
+  for (var i = 0; i < length; i++) {
+    pause_children(items[i].e, transitions, true);
+  }
+  var is_controlled = length > 0 && transitions.length === 0 && controlled_anchor !== null;
+  if (is_controlled) {
+    var parent_node = (
+      /** @type {Element} */
+      /** @type {Element} */
+      controlled_anchor.parentNode
+    );
+    clear_text_content(parent_node);
+    parent_node.append(
+      /** @type {Element} */
+      controlled_anchor
+    );
+    items_map.clear();
+    link(state2, items[0].prev, items[length - 1].next);
+  }
+  run_out_transitions(transitions, () => {
+    for (var i2 = 0; i2 < length; i2++) {
+      var item = items[i2];
+      if (!is_controlled) {
+        items_map.delete(item.k);
+        link(state2, item.prev, item.next);
+      }
+      destroy_effect(item.e, !is_controlled);
+    }
+  });
+}
+function each(node, flags, get_collection, get_key, render_fn, fallback_fn = null) {
+  var anchor = node;
+  var state2 = { flags, items: /* @__PURE__ */ new Map(), first: null };
+  var is_controlled = (flags & EACH_IS_CONTROLLED) !== 0;
+  if (is_controlled) {
+    var parent_node = (
+      /** @type {Element} */
+      node
+    );
+    anchor = parent_node.appendChild(create_text());
+  }
+  var fallback = null;
+  var was_empty = false;
+  var each_array = /* @__PURE__ */ derived_safe_equal(() => {
+    var collection = get_collection();
+    return is_array(collection) ? collection : collection == null ? [] : array_from(collection);
+  });
+  block(() => {
+    var array = get(each_array);
+    var length = array.length;
+    if (was_empty && length === 0) {
+      return;
+    }
+    was_empty = length === 0;
+    {
+      reconcile(array, state2, anchor, render_fn, flags, get_key, get_collection);
+    }
+    if (fallback_fn !== null) {
+      if (length === 0) {
+        if (fallback) {
+          resume_effect(fallback);
+        } else {
+          fallback = branch(() => fallback_fn(anchor));
+        }
+      } else if (fallback !== null) {
+        pause_effect(fallback, () => {
+          fallback = null;
+        });
+      }
+    }
+    get(each_array);
+  });
+}
+function reconcile(array, state2, anchor, render_fn, flags, get_key, get_collection) {
+  var _a2, _b, _c, _d;
+  var is_animated = (flags & EACH_IS_ANIMATED) !== 0;
+  var should_update = (flags & (EACH_ITEM_REACTIVE | EACH_INDEX_REACTIVE)) !== 0;
+  var length = array.length;
+  var items = state2.items;
+  var first = state2.first;
+  var current = first;
+  var seen;
+  var prev = null;
+  var to_animate;
+  var matched = [];
+  var stashed = [];
+  var value;
+  var key;
+  var item;
+  var i;
+  if (is_animated) {
+    for (i = 0; i < length; i += 1) {
+      value = array[i];
+      key = get_key(value, i);
+      item = items.get(key);
+      if (item !== void 0) {
+        (_a2 = item.a) == null ? void 0 : _a2.measure();
+        (to_animate ?? (to_animate = /* @__PURE__ */ new Set())).add(item);
+      }
+    }
+  }
+  for (i = 0; i < length; i += 1) {
+    value = array[i];
+    key = get_key(value, i);
+    item = items.get(key);
+    if (item === void 0) {
+      var child_anchor = current ? (
+        /** @type {TemplateNode} */
+        current.e.nodes_start
+      ) : anchor;
+      prev = create_item(
+        child_anchor,
+        state2,
+        prev,
+        prev === null ? state2.first : prev.next,
+        value,
+        key,
+        i,
+        render_fn,
+        flags,
+        get_collection
+      );
+      items.set(key, prev);
+      matched = [];
+      stashed = [];
+      current = prev.next;
+      continue;
+    }
+    if (should_update) {
+      update_item(item, value, i, flags);
+    }
+    if ((item.e.f & INERT) !== 0) {
+      resume_effect(item.e);
+      if (is_animated) {
+        (_b = item.a) == null ? void 0 : _b.unfix();
+        (to_animate ?? (to_animate = /* @__PURE__ */ new Set())).delete(item);
+      }
+    }
+    if (item !== current) {
+      if (seen !== void 0 && seen.has(item)) {
+        if (matched.length < stashed.length) {
+          var start = stashed[0];
+          var j;
+          prev = start.prev;
+          var a = matched[0];
+          var b = matched[matched.length - 1];
+          for (j = 0; j < matched.length; j += 1) {
+            move(matched[j], start, anchor);
+          }
+          for (j = 0; j < stashed.length; j += 1) {
+            seen.delete(stashed[j]);
+          }
+          link(state2, a.prev, b.next);
+          link(state2, prev, a);
+          link(state2, b, start);
+          current = start;
+          prev = b;
+          i -= 1;
+          matched = [];
+          stashed = [];
+        } else {
+          seen.delete(item);
+          move(item, current, anchor);
+          link(state2, item.prev, item.next);
+          link(state2, item, prev === null ? state2.first : prev.next);
+          link(state2, prev, item);
+          prev = item;
+        }
+        continue;
+      }
+      matched = [];
+      stashed = [];
+      while (current !== null && current.k !== key) {
+        if ((current.e.f & INERT) === 0) {
+          (seen ?? (seen = /* @__PURE__ */ new Set())).add(current);
+        }
+        stashed.push(current);
+        current = current.next;
+      }
+      if (current === null) {
+        continue;
+      }
+      item = current;
+    }
+    matched.push(item);
+    prev = item;
+    current = item.next;
+  }
+  if (current !== null || seen !== void 0) {
+    var to_destroy = seen === void 0 ? [] : array_from(seen);
+    while (current !== null) {
+      if ((current.e.f & INERT) === 0) {
+        to_destroy.push(current);
+      }
+      current = current.next;
+    }
+    var destroy_length = to_destroy.length;
+    if (destroy_length > 0) {
+      var controlled_anchor = (flags & EACH_IS_CONTROLLED) !== 0 && length === 0 ? anchor : null;
+      if (is_animated) {
+        for (i = 0; i < destroy_length; i += 1) {
+          (_c = to_destroy[i].a) == null ? void 0 : _c.measure();
+        }
+        for (i = 0; i < destroy_length; i += 1) {
+          (_d = to_destroy[i].a) == null ? void 0 : _d.fix();
+        }
+      }
+      pause_effects(state2, to_destroy, controlled_anchor, items);
+    }
+  }
+  if (is_animated) {
+    queue_micro_task(() => {
+      var _a3;
+      if (to_animate === void 0) return;
+      for (item of to_animate) {
+        (_a3 = item.a) == null ? void 0 : _a3.apply();
+      }
+    });
+  }
+  active_effect.first = state2.first && state2.first.e;
+  active_effect.last = prev && prev.e;
+}
+function update_item(item, value, index2, type) {
+  if ((type & EACH_ITEM_REACTIVE) !== 0) {
+    internal_set(item.v, value);
+  }
+  if ((type & EACH_INDEX_REACTIVE) !== 0) {
+    internal_set(
+      /** @type {Value<number>} */
+      item.i,
+      index2
+    );
+  } else {
+    item.i = index2;
+  }
+}
+function create_item(anchor, state2, prev, next, value, key, index2, render_fn, flags, get_collection) {
+  var reactive = (flags & EACH_ITEM_REACTIVE) !== 0;
+  var mutable = (flags & EACH_ITEM_IMMUTABLE) === 0;
+  var v = reactive ? mutable ? /* @__PURE__ */ mutable_source(value, false, false) : source(value) : value;
+  var i = (flags & EACH_INDEX_REACTIVE) === 0 ? index2 : source(index2);
+  var item = {
+    i,
+    v,
+    k: key,
+    a: null,
+    // @ts-expect-error
+    e: null,
+    prev,
+    next
+  };
+  try {
+    item.e = branch(() => render_fn(anchor, v, i, get_collection), hydrating);
+    item.e.prev = prev && prev.e;
+    item.e.next = next && next.e;
+    if (prev === null) {
+      state2.first = item;
+    } else {
+      prev.next = item;
+      prev.e.next = item.e;
+    }
+    if (next !== null) {
+      next.prev = item;
+      next.e.prev = item.e;
+    }
+    return item;
+  } finally {
+  }
+}
+function move(item, next, anchor) {
+  var end = item.next ? (
+    /** @type {TemplateNode} */
+    item.next.e.nodes_start
+  ) : anchor;
+  var dest = next ? (
+    /** @type {TemplateNode} */
+    next.e.nodes_start
+  ) : anchor;
+  var node = (
+    /** @type {TemplateNode} */
+    item.e.nodes_start
+  );
+  while (node !== end) {
+    var next_node = (
+      /** @type {TemplateNode} */
+      /* @__PURE__ */ get_next_sibling(node)
+    );
+    dest.before(node);
+    node = next_node;
+  }
+}
+function link(state2, prev, next) {
+  if (prev === null) {
+    state2.first = next;
+  } else {
+    prev.next = next;
+    prev.e.next = next && next.e;
+  }
+  if (next !== null) {
+    next.prev = prev;
+    next.e.prev = prev && prev.e;
+  }
+}
 function append_styles(anchor, css) {
   queue_micro_task(() => {
     var root = anchor.getRootNode();
@@ -1586,52 +1930,97 @@ function append_styles(anchor, css) {
     }
   });
 }
+const IS_CUSTOM_ELEMENT = Symbol("is custom element");
+const IS_HTML = Symbol("is html");
+function set_selected(element, selected) {
+  if (selected) {
+    if (!element.hasAttribute("selected")) {
+      element.setAttribute("selected", "");
+    }
+  } else {
+    element.removeAttribute("selected");
+  }
+}
+function set_attribute(element, attribute, value, skip_warning) {
+  var attributes = get_attributes(element);
+  if (attributes[attribute] === (attributes[attribute] = value)) return;
+  if (value == null) {
+    element.removeAttribute(attribute);
+  } else if (typeof value !== "string" && get_setters(element).includes(attribute)) {
+    element[attribute] = value;
+  } else {
+    element.setAttribute(attribute, value);
+  }
+}
+function get_attributes(element) {
+  return (
+    /** @type {Record<string | symbol, unknown>} **/
+    // @ts-expect-error
+    element.__attributes ?? (element.__attributes = {
+      [IS_CUSTOM_ELEMENT]: element.nodeName.includes("-"),
+      [IS_HTML]: element.namespaceURI === NAMESPACE_HTML
+    })
+  );
+}
+var setters_cache = /* @__PURE__ */ new Map();
+function get_setters(element) {
+  var setters = setters_cache.get(element.nodeName);
+  if (setters) return setters;
+  setters_cache.set(element.nodeName, setters = []);
+  var descriptors;
+  var proto = element;
+  var element_proto = Element.prototype;
+  while (element_proto !== proto) {
+    descriptors = get_descriptors(proto);
+    for (var key in descriptors) {
+      if (descriptors[key].set) {
+        setters.push(key);
+      }
+    }
+    proto = get_prototype_of(proto);
+  }
+  return setters;
+}
 export {
-  effect as A,
-  teardown as B,
-  is as C,
-  render_effect as D,
-  EACH_INDEX_REACTIVE as E,
-  delegate as F,
-  push as G,
-  append_styles as H,
-  INERT as I,
-  state as J,
-  proxy as K,
-  from_html as L,
-  sibling as M,
-  template_effect as N,
-  append as O,
-  pop as P,
-  set as Q,
-  child as R,
-  set_text as S,
-  mount as T,
+  set_text as A,
+  set_selected as B,
+  index as C,
+  mount as D,
+  block as E,
+  EFFECT_TRANSPARENT as F,
+  resume_effect as G,
+  branch as H,
+  pause_effect as I,
+  derived as J,
+  first_child as K,
+  set_attribute as L,
+  user_derived as M,
+  UNINITIALIZED as U,
   set_active_effect as a,
   active_reaction as b,
   active_effect as c,
   component_context as d,
   untrack as e,
-  create_text as f,
-  block as g,
-  get as h,
-  derived_safe_equal as i,
-  branch as j,
-  array_from as k,
-  internal_set as l,
-  mutable_source as m,
-  source as n,
-  pause_children as o,
-  pause_effect as p,
-  clear_text_content as q,
-  resume_effect as r,
+  effect as f,
+  is as g,
+  delegate as h,
+  is_array as i,
+  append_styles as j,
+  state as k,
+  proxy as l,
+  from_html as m,
+  sibling as n,
+  each as o,
+  push as p,
+  template_effect as q,
+  render_effect as r,
   set_active_reaction as s,
-  run_out_transitions as t,
+  teardown as t,
   user_effect as u,
-  destroy_effect as v,
-  get_next_sibling as w,
-  EACH_ITEM_REACTIVE as x,
-  EACH_ITEM_IMMUTABLE as y,
-  is_array as z
+  get as v,
+  append as w,
+  pop as x,
+  set as y,
+  child as z
 };
-//# sourceMappingURL=css.js.map
+//# sourceMappingURL=attributes.js.map
