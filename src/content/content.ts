@@ -2,9 +2,9 @@
  * Content script for Ruddr integration
  */
 import TogglButton from './TogglButton.svelte';
-// import ReportPanel from './ReportPanel.svelte';
-import {togglFetchReport, togglSaveProjectMapping, type TogglReportItem} from '../lib/toggl';
-import {mount} from "svelte";
+import {togglSaveProjectMapping, type TogglReportItem} from '../lib/toggl';
+import {mount} from 'svelte';
+import {DateTime} from 'luxon';
 
 // Global state
 let togglLastProjectIdClicked: string | null = null;
@@ -79,30 +79,9 @@ function togglAddButton(): void {
     mount(TogglButton, {
         target: buttonContainer,
         props: {
-            panelVisible: false
+            getDate: togglGetReportDate,
         }
     });
-}
-
-/**
- * Handle Toggl button click
- */
-async function onTogglButtonClick(): Promise<void> {
-    if (document.getElementById('toggl_report')) {
-        // togglRemoveReportPanel();
-    } else {
-        const date = togglGetReportDate();
-        togglLastReportDate = date;
-        console.log(`Fetching Toggl report for date: ${date}`);
-
-        try {
-            const report = await togglFetchReport(date);
-            console.log('Got report', report);
-            // togglShowReportPanel(report);
-        } catch (err) {
-            console.warn(err);
-        }
-    }
 }
 
 /**
@@ -110,9 +89,8 @@ async function onTogglButtonClick(): Promise<void> {
  */
 function togglGetReportDate(): string {
     const form = togglFindForm();
-    const dateInput = form?.querySelector('input[name="date"]');
-    // @ts-ignore - moment is loaded globally
-    return moment(dateInput?.value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+    const dateInput: HTMLInputElement = form?.querySelector('input[name="date"]') as HTMLInputElement;
+    return DateTime.fromFormat(dateInput?.value, 'd/M/yyyy').toFormat('yyyy-MM-dd');
 }
 
 /**

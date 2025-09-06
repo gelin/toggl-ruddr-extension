@@ -139,6 +139,21 @@ async function togglRefreshProjects(token) {
 async function togglGetProjectMappings() {
   return chrome.storage.sync.get("toggl_project_mappings").then((o) => (o == null ? void 0 : o.toggl_project_mappings) || {}).catch((_) => ({}));
 }
+async function togglFetchReport(date) {
+  const message = {
+    method: "togglFetchReport",
+    date
+  };
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(message, (response) => {
+      if (response.success) {
+        resolve(response.report);
+      } else {
+        reject(response.error);
+      }
+    });
+  });
+}
 async function togglFetchReportImpl(date) {
   const apiToken = await togglGetApiToken();
   const workspaceId = await togglGetWorkspaceId();
@@ -200,6 +215,7 @@ export {
   togglGetApiToken as d,
   togglGetWorkspaces as e,
   togglFetchReportImpl as f,
+  togglFetchReport as g,
   togglTestToken as t
 };
 //# sourceMappingURL=toggl.js.map

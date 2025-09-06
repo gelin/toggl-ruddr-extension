@@ -1,10 +1,26 @@
 <script lang="ts">
     import ReportPanel from "./ReportPanel.svelte";
+    import {togglFetchReport, type TogglReportItem} from "../lib/toggl";
 
-    let {panelVisible} = $props();
+    let {getDate} = $props();
+    let date = $state('_');
+    let panelVisible = $state(false);
+    let report = $state<TogglReportItem[]>([]);
 
-    function onClick() {
-        panelVisible = !panelVisible;
+    async function onClick() {
+        if (panelVisible) {
+            panelVisible = false;
+        } else {
+            date = getDate();
+            console.log(`Fetching Toggl report for date: ${date}`);
+            try {
+                report = await togglFetchReport(date);
+                console.log('Got report', report);
+                panelVisible = true;
+            } catch (err) {
+                console.warn(err);
+            }
+        }
     }
 
     /**
@@ -22,8 +38,8 @@
 <button id="toggl_button" onclick={onClick}>Toggl</button>
 {#if panelVisible}
     <ReportPanel
-            report={[]}
-            date="TEST"
+            date={date}
+            report={report}
     />
 {/if}
 
