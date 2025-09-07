@@ -1,4 +1,4 @@
-import { E as block, F as EFFECT_TRANSPARENT, G as resume_effect, H as branch, I as pause_effect, U as UNINITIALIZED, h as delegate, p as push, j as append_styles, l as proxy, m as from_html, z as child, w as append, x as pop, J as first_child, o as each, K as set_attribute, n as sibling, q as template_effect, v as get, L as user_derived, A as set_text, C as index, k as state, y as set, D as mount } from "./attributes.js";
+import { E as block, F as EFFECT_TRANSPARENT, G as resume_effect, H as branch, I as pause_effect, U as UNINITIALIZED, h as delegate, p as push, j as append_styles, m as from_html, z as child, w as append, x as pop, J as first_child, o as each, K as set_attribute, n as sibling, q as template_effect, v as get, L as user_derived, A as set_text, C as index, k as state, l as proxy, y as set, D as mount } from "./attributes.js";
 import { g as togglFetchReport } from "./toggl.js";
 function if_block(node, fn, [root_index, hydrate_index] = [0, 0]) {
   var anchor = node;
@@ -108,35 +108,28 @@ function set_style(dom, value, prev_styles, next_styles) {
   }
   return next_styles;
 }
-var root_1 = from_html(`<p class="svelte-16ibe5i">[No time tracked in Toggl]</p>`);
-var on_click = (_, onItemClickInt, item) => onItemClickInt(get(item));
-var on_keydown = (event, onItemClickInt, item) => {
+var root_1 = from_html(`<p class="svelte-19ult01">[No time tracked in Toggl]</p>`);
+var on_click = (_, $$props, item) => $$props.onItemClick(get(item));
+var on_keydown = (event, $$props, item) => {
   if (event.key === "Enter") {
-    onItemClickInt(get(item));
+    $$props.onItemClick(get(item));
   }
 };
-var root_3 = from_html(`<div role="button"><h4 class="svelte-16ibe5i"> </h4> <p class="svelte-16ibe5i"> </p></div>`);
-var root_2 = from_html(`<!> <h3 class="total svelte-16ibe5i"> </h3>`, 1);
-var root$1 = from_html(`<div id="toggl_report" class="report-panel svelte-16ibe5i"><!></div>`);
+var root_3 = from_html(`<div role="button"><h4 class="svelte-19ult01"> </h4> <p class="svelte-19ult01"> </p></div>`);
+var root_2 = from_html(`<!> <h3 class="total svelte-19ult01"> </h3>`, 1);
+var root$1 = from_html(`<div id="toggl_report" class="report-panel svelte-19ult01"><!></div>`);
 const $$css$1 = {
-  hash: "svelte-16ibe5i",
-  code: ".report-panel.svelte-16ibe5i {position:relative;top:0;left:0;width:360px;z-index:100;padding:1rem;background:white;border:1px solid gray;border-radius:3px;text-transform:none;font-family:Roboto, sans-serif;font-size:0.875rem;font-weight:400;}.report-item.svelte-16ibe5i {cursor:pointer;margin:0.5rem;}h4.svelte-16ibe5i {font-weight:900;margin-bottom:0;}p.svelte-16ibe5i {color:black;white-space:pre-line;}.total.svelte-16ibe5i {margin:0.5rem;font-weight:900;}.clicked.svelte-16ibe5i h4:where(.svelte-16ibe5i), .clicked.svelte-16ibe5i p:where(.svelte-16ibe5i) {color:lightgray;}"
+  hash: "svelte-19ult01",
+  code: ".report-panel.svelte-19ult01 {position:relative;top:0;left:0;width:360px;z-index:100;padding:1rem;background:white;border:1px solid gray;border-radius:3px;text-transform:none;font-family:Roboto, sans-serif;font-size:0.875rem;font-weight:400;}.report-item.svelte-19ult01 {cursor:pointer;margin:0.5rem;}h4.svelte-19ult01 {font-weight:900;margin-bottom:0;}p.svelte-19ult01 {color:black;white-space:pre-line;}.total.svelte-19ult01 {margin:0.5rem;font-weight:900;}.clicked.svelte-19ult01 h4:where(.svelte-19ult01), .clicked.svelte-19ult01 p:where(.svelte-19ult01) {color:lightgray !important;}"
 };
 function ReportPanel($$anchor, $$props) {
   push($$props, true);
   append_styles($$anchor, $$css$1);
-  let clickedItems = proxy(/* @__PURE__ */ new Set());
   let totalSeconds = $$props.report.reduce((acc, item) => acc + item.seconds, 0);
   function formatDuration(seconds) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor(seconds % 3600 / 60);
     return `${hours}:${minutes.toString().padStart(2, "0")}`;
-  }
-  function onItemClickInt(item) {
-    var _a;
-    $$props.onItemClick(item);
-    const itemId = `${$$props.date}_${(_a = item.project) == null ? void 0 : _a.id}`;
-    clickedItems.add(itemId);
   }
   var div = root$1();
   var node = child(div);
@@ -150,15 +143,14 @@ function ReportPanel($$anchor, $$props) {
       var node_1 = first_child(fragment);
       each(node_1, 17, () => $$props.report, index, ($$anchor3, item, index2) => {
         var div_1 = root_3();
-        const itemId = user_derived(() => {
+        const isClicked = user_derived(() => {
           var _a;
-          return `${$$props.date}_${(_a = get(item).project) == null ? void 0 : _a.id}`;
+          return $$props.clickedItems.has(((_a = get(item).project) == null ? void 0 : _a.id) ?? "");
         });
-        const isClicked = user_derived(() => clickedItems.has(get(itemId)));
         let classes;
         set_attribute(div_1, "tabindex", index2);
-        div_1.__click = [on_click, onItemClickInt, item];
-        div_1.__keydown = [on_keydown, onItemClickInt, item];
+        div_1.__click = [on_click, $$props, item];
+        div_1.__keydown = [on_keydown, $$props, item];
         var h4 = child(div_1);
         var text = child(h4);
         var p_1 = sibling(h4, 2);
@@ -166,7 +158,7 @@ function ReportPanel($$anchor, $$props) {
         template_effect(
           ($0, $1) => {
             var _a, _b, _c;
-            classes = set_class(div_1, 1, "report-item svelte-16ibe5i", null, classes, $0);
+            classes = set_class(div_1, 1, "report-item svelte-19ult01", null, classes, $0);
             set_style(h4, `color: ${get(item).color ?? ""}`);
             set_text(text, `${$1 ?? ""} •
                     ${((_a = get(item).project) == null ? void 0 : _a.name) || "Unknown Project"} •
@@ -227,8 +219,16 @@ function TogglButton($$anchor, $$props) {
   let panelVisible = state(false);
   let report = state(proxy([]));
   const reportCache = /* @__PURE__ */ new Map();
+  const clickedItems = /* @__PURE__ */ new Map();
   function onItemClickInt(item) {
+    var _a, _b;
     set(panelVisible, false);
+    if (!clickedItems.has(get(date))) {
+      clickedItems.set(get(date), /* @__PURE__ */ new Set());
+    }
+    if ((_a = item.project) == null ? void 0 : _a.id) {
+      (_b = clickedItems.get(get(date))) == null ? void 0 : _b.add(item.project.id);
+    }
     $$props.onItemClick(item);
   }
   function onDocumentClick(event) {
@@ -244,12 +244,16 @@ function TogglButton($$anchor, $$props) {
   var node = sibling(button, 2);
   {
     var consequent = ($$anchor2) => {
+      const expression = user_derived(() => clickedItems.get(get(date)) ?? /* @__PURE__ */ new Set());
       ReportPanel($$anchor2, {
         get date() {
           return get(date);
         },
         get report() {
           return get(report);
+        },
+        get clickedItems() {
+          return get(expression);
         },
         onItemClick: onItemClickInt
       });

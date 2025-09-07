@@ -13,6 +13,7 @@
     let report = $state<TogglReportItem[]>([]);
     // local cache of reports, valid while the button is visible
     const reportCache = new Map<string, TogglReportItem[]>();
+    const clickedItems = new Map<string, Set<string>>();
 
     async function onClick() {
         if (panelVisible) {
@@ -38,6 +39,12 @@
 
     function onItemClickInt(item: TogglReportItem) {
         panelVisible = false;
+        if (!clickedItems.has(date)) {
+            clickedItems.set(date, new Set());
+        }
+        if (item.project?.id) {
+            clickedItems.get(date)?.add(item.project.id);
+        }
         onItemClick(item);
     }
 
@@ -56,6 +63,7 @@
     <ReportPanel
             date={date}
             report={report}
+            clickedItems={clickedItems.get(date) ?? new Set()}
             onItemClick={onItemClickInt}
     />
 {/if}

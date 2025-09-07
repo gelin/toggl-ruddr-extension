@@ -2,14 +2,13 @@
     import {type TogglReportItem} from "../lib/toggl";
 
     type ReportPanelProps = {
-        report: TogglReportItem[];
         date: string;
+        report: TogglReportItem[];
+        clickedItems: Set<string>;
         onItemClick: (item: TogglReportItem) => void;
     }
 
-    let {report, date, onItemClick}: ReportPanelProps = $props();
-
-    let clickedItems = $state(new Set());
+    let {date, report, clickedItems, onItemClick}: ReportPanelProps = $props();
 
     let totalSeconds = report.reduce((acc, item) => acc + item.seconds, 0);
 
@@ -18,12 +17,6 @@
         const minutes = Math.floor((seconds % 3600) / 60);
         return `${hours}:${minutes.toString().padStart(2, '0')}`;
     }
-
-    function onItemClickInt(item: TogglReportItem) {
-        onItemClick(item);
-        const itemId = `${date}_${item.project?.id}`;
-        clickedItems.add(itemId);
-    }
 </script>
 
 <div id="toggl_report" class="report-panel">
@@ -31,16 +24,15 @@
         <p>[No time tracked in Toggl]</p>
     {:else}
         {#each report as item, index}
-            {@const itemId = `${date}_${item.project?.id}`}
-            {@const isClicked = clickedItems.has(itemId)}
+            {@const isClicked = clickedItems.has(item.project?.id ?? '')}
 
             <div class="report-item" class:clicked={isClicked}
                  tabindex={index}
                  role="button"
-                 onclick={() => onItemClickInt(item)}
+                 onclick={() => onItemClick(item)}
                  onkeydown={(event) => {
                      if (event.key === 'Enter') {
-                         onItemClickInt(item);
+                         onItemClick(item);
                      }
                  }}>
                 <h4 style="color: {item.color}">
@@ -98,6 +90,6 @@
     }
 
     .clicked h4, .clicked p {
-        color: lightgray;
+        color: lightgray !important;
     }
 </style>
