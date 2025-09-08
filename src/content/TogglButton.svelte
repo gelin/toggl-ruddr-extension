@@ -3,17 +3,16 @@
     import {togglFetchReport, type TogglReportItem} from "../lib/toggl";
 
     type TogglButtonProps = {
+        reportCache: Map<string, TogglReportItem[]>;
+        clickedItems: Map<string, Set<string>>;
         getDate: () => string;
         onItemClick: (item: TogglReportItem) => void;
     }
 
-    let {getDate, onItemClick}: TogglButtonProps = $props();
+    let {reportCache, clickedItems, getDate, onItemClick}: TogglButtonProps = $props();
     let date = $state('_');
     let panelVisible = $state(false);
     let report = $state<TogglReportItem[]>([]);
-    // local cache of reports, valid while the button is visible
-    const reportCache = new Map<string, TogglReportItem[]>();
-    const clickedItems = new Map<string, Set<string>>();
 
     async function onClick() {
         if (panelVisible) {

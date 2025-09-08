@@ -6,6 +6,10 @@ import {togglSaveProjectMapping, type TogglReportItem} from '../lib/toggl';
 import {mount} from 'svelte';
 import {DateTime, Duration} from 'luxon';
 
+// local cache of reports, valid until page reload
+const togglReportCache = new Map<string, TogglReportItem[]>();
+const togglClickedItems = new Map<string, Set<string>>();
+
 /**
  * Initialise the content script
  */
@@ -64,6 +68,8 @@ function togglAddButton(): void {
     mount(TogglButton, {
         target: buttonContainer,
         props: {
+            reportCache: togglReportCache,
+            clickedItems: togglClickedItems,
             getDate: togglGetReportDate,
             onItemClick: togglFillFormFromReport
         }

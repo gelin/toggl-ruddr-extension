@@ -186,19 +186,19 @@ function ReportPanel($$anchor, $$props) {
   pop();
 }
 delegate(["click", "keydown"]);
-async function onClick(_, panelVisible, date, $$props, reportCache, report) {
+async function onClick(_, panelVisible, date, $$props, report) {
   if (get(panelVisible)) {
     set(panelVisible, false);
   } else {
     set(date, $$props.getDate(), true);
-    if (reportCache.has(get(date))) {
-      set(report, reportCache.get(get(date)), true);
+    if ($$props.reportCache.has(get(date))) {
+      set(report, $$props.reportCache.get(get(date)), true);
       set(panelVisible, true);
     } else {
       console.log(`Fetching Toggl report for date: ${get(date)}`);
       try {
         set(report, await togglFetchReport(get(date)), true);
-        reportCache.set(get(date), get(report));
+        $$props.reportCache.set(get(date), get(report));
         console.log("Got report", get(report));
         set(panelVisible, true);
       } catch (err) {
@@ -218,16 +218,14 @@ function TogglButton($$anchor, $$props) {
   let date = state("_");
   let panelVisible = state(false);
   let report = state(proxy([]));
-  const reportCache = /* @__PURE__ */ new Map();
-  const clickedItems = /* @__PURE__ */ new Map();
   function onItemClickInt(item) {
     var _a, _b;
     set(panelVisible, false);
-    if (!clickedItems.has(get(date))) {
-      clickedItems.set(get(date), /* @__PURE__ */ new Set());
+    if (!$$props.clickedItems.has(get(date))) {
+      $$props.clickedItems.set(get(date), /* @__PURE__ */ new Set());
     }
     if ((_a = item.project) == null ? void 0 : _a.id) {
-      (_b = clickedItems.get(get(date))) == null ? void 0 : _b.add(item.project.id);
+      (_b = $$props.clickedItems.get(get(date))) == null ? void 0 : _b.add(item.project.id);
     }
     $$props.onItemClick(item);
   }
@@ -240,11 +238,11 @@ function TogglButton($$anchor, $$props) {
   document.addEventListener("click", onDocumentClick);
   var fragment = root();
   var button = first_child(fragment);
-  button.__click = [onClick, panelVisible, date, $$props, reportCache, report];
+  button.__click = [onClick, panelVisible, date, $$props, report];
   var node = sibling(button, 2);
   {
     var consequent = ($$anchor2) => {
-      const expression = user_derived(() => clickedItems.get(get(date)) ?? /* @__PURE__ */ new Set());
+      const expression = user_derived(() => $$props.clickedItems.get(get(date)) ?? /* @__PURE__ */ new Set());
       ReportPanel($$anchor2, {
         get date() {
           return get(date);
@@ -6750,6 +6748,8 @@ function friendlyDateTime(dateTimeish) {
     );
   }
 }
+const togglReportCache = /* @__PURE__ */ new Map();
+const togglClickedItems = /* @__PURE__ */ new Map();
 function togglInit() {
   const observer = new MutationObserver((mutations) => {
     togglAddButton();
@@ -6786,6 +6786,8 @@ function togglAddButton() {
   mount(TogglButton, {
     target: buttonContainer,
     props: {
+      reportCache: togglReportCache,
+      clickedItems: togglClickedItems,
       getDate: togglGetReportDate,
       onItemClick: togglFillFormFromReport
     }
