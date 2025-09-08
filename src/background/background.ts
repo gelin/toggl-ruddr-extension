@@ -1,7 +1,9 @@
-import { togglFetchReportImpl } from "/js/toggl.js";
+/**
+ * Background service worker for the extension
+ */
+import {togglFetchReportImpl} from "../lib/toggl";
 
-'/js/toggl.js';
-
+// Listen for messages from content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.method === 'togglFetchReport') {
         togglFetchReportImpl(message.date)
@@ -19,5 +21,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 });
             });
     }
-    return true;
+    return true; // Keep the message channel open for async response
 });

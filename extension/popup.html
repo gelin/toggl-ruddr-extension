@@ -1,14 +1,10 @@
 <html lang="en">
+<script type="module" crossorigin src="/assets/popup.js"></script>
+<link rel="modulepreload" crossorigin href="/assets/attributes.js">
+<link rel="modulepreload" crossorigin href="/assets/toggl.js">
+
 <body>
 <h1>Toggl + Ruddr Settings</h1>
-<form id="toggl_settings">
-    <label for="toggl_token">Toggl Track API token</label><br>
-    <input id="toggl_token" type="text"><br>
-    <label for="toggl_workspace">Toggl Workspace</label><br>
-    <select id="toggl_workspace"></select><br>
-    <p id="toggl_message"></p><br>
-    <button id="toggl_settings_save_button">Refresh & Save</button>
-</form>
-<script src="js/popup.js" type="module"></script>
+<div id="popup"></div>
 </body>
 </html>
